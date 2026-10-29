@@ -1,0 +1,22 @@
+"""Research defaults, sharing the application's single settings instance."""
+
+from app.core.config import settings
+
+DEEPSEEK_API_KEY = settings.DEEPSEEK_API_KEY
+DEEPSEEK_BASE_URL = settings.DEEPSEEK_BASE_URL or "https://api.deepseek.com"
+DEEPSEEK_MODEL = settings.DEEPSEEK_MODEL
+DEEPSEEK_TIMEOUT_SECONDS = getattr(settings, "DEEPSEEK_TIMEOUT_SECONDS", 60.0)
+DEEPSEEK_THINKING = getattr(settings, "DEEPSEEK_THINKING", "disabled")
+TAVILY_API_KEY = getattr(settings, "TAVILY_API_KEY", None)
+REDIS_URL = getattr(settings, "REDIS_URL", None)
+
+SEARCH_MAX_RESULTS = 3
+SEARCH_MAX_ATTEMPTS = 3
+SEARCH_BACKOFF_SECONDS = 1.0
+SEARCH_CONCURRENCY = 5
+SEARCH_CACHE_TTL_SECONDS = 6 * 60 * 60
+SEARCH_CACHE_MAX_ENTRIES = 512
+MAX_RESEARCH_RETRIES = 1
+MIN_COVERAGE_RATIO = 0.6
+MAX_SUB_TASKS = 5
+MAX_SEARCH_QUERY_LENGTH = 1000

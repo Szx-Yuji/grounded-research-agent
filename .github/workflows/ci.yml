@@ -1,0 +1,64 @@
+name: Grounded Research checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-test-password
+          POSTGRES_DB: grounded_research_test
+        ports:
+          - 55439:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:ci-test-password@127.0.0.1:55439/grounded_research_test
+      SECRET_KEY: ci-only-secret-never-for-public-deployment-00000000
+      PROJECT_NAME: Grounded Research CI
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-fixture-password-only
+      FASTAPI_ENV: development
+      DOCUMENT_STORAGE_DIR: /tmp/grounded-research-ci/documents
+      CHROMA_PERSIST_DIRECTORY: /tmp/grounded-research-ci/chroma
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.28"
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+      - run: uv sync --frozen --package app
+      - run: bun --no-env-file install --frozen-lockfile --ignore-scripts
+      - run: uv run --frozen alembic upgrade head
+        working-directory: backend
+      - run: uv run --frozen pytest --confcutdir=tests/research tests/research -q
+        working-directory: backend
+      - run: uv run --frozen pytest --confcutdir=tests/integration tests/integration -q
+        working-directory: backend
+      - run: uv run --frozen pytest --confcutdir=tests/assistant tests/assistant -q
+        working-directory: backend
+      - run: uv run --frozen pytest --confcutdir=tests/assistant_integration tests/assistant_integration -q
+        working-directory: backend
+      - run: uv run --frozen pytest tests/api tests/crud -q
+        working-directory: backend
+      - run: uv run --frozen ruff check app
+        working-directory: backend
+      - run: bun run --filter frontend build
+      - run: bun run playwright install --with-deps chromium
+        working-directory: frontend
+      - run: bun run --filter frontend test:research

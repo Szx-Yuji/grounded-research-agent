@@ -1,0 +1,16 @@
+FROM mcr.microsoft.com/playwright:v1.62.1-noble
+
+WORKDIR /app
+
+COPY --from=oven/bun:1.4.2 /usr/local/bin/bun /usr/local/bin/bun
+
+COPY package.json bun.lock /app/
+
+COPY frontend/package.json /app/frontend/
+COPY packages/react-email/package.json /app/packages/react-email/
+
+RUN bun install --frozen-lockfile --ignore-scripts --filter frontend
+
+COPY ./frontend /app/frontend
+
+WORKDIR /app/frontend

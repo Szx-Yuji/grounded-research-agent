@@ -1,0 +1,49 @@
+[dependency-groups]
+dev = [
+    "prek>=0.4.14,<1.0.0",
+    "typer>=0.27.1,<1.0.0",
+    "zizmor>=1.29.0",
+]
+
+github-actions = [
+    "smokeshow >=0.5.0",
+]
+
+[tool.uv.workspace]
+members = ["backend"]
+
+[tool.uv]
+# Keep security fixes when the workspace is resolved again.
+constraint-dependencies = [
+    "filelock>=4.2.1,<5",
+    "opentelemetry-api>=1.45.1",
+    "aiohttp>=3.14.4,<4",
+    "anyio>=4.14.2,<5",
+    "certifi>=2026.10.19",
+    "multidict>=6.9.1,<7",
+    "oauthlib>=4.0.0,<5",
+    "urllib3>=2.8.0,<3",
+]
+
+[tool.typos.files]
+extend-exclude = [
+    "img/",
+    "uv.lock",
+    "bun.lock",
+    "backend/coverage/",
+    "backend/htmlcov/",
+    "backend/app/frontend/",
+    "frontend/dist/",
+    "frontend/public/assets/images/",
+]
+
+[tool.typos.default]
+extend-ignore-re = [
+    # GitHub usernames in @mentions
+    "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
+    # Name of the package in the PR title
+    "Bump certifi ",
+]
+
+[tool.typos.default.extend-identifiers]
+alls = "alls"

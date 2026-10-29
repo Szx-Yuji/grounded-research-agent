@@ -1,0 +1,73 @@
+name: Dependency audit
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version-file: .python-version
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.28"
+      - name: Export the frozen dependency graph
+        run: uv export --frozen --all-groups --no-hashes --no-emit-workspace --no-annotate -o "$RUNNER_TEMP/python-requirements.txt"
+      - name: Retain the unfiltered advisory report
+        continue-on-error: true
+        run: uv tool run --no-build pip-audit==2.10.1 --strict --no-deps --disable-pip -r "$RUNNER_TEMP/python-requirements.txt" --format json --output "$RUNNER_TEMP/python-audit.json"
+      - name: Enforce the reviewed advisory policy
+        shell: bash
+        run: |
+          if [[ "$(date -u +%F)" > "2026-11-21" ]]; then
+            echo "Chroma advisory exceptions expired; review SECURITY.md."
+            exit 1
+          fi
+          uv tool run --no-build pip-audit==2.10.1 --strict --no-deps --disable-pip \
+            -r "$RUNNER_TEMP/python-requirements.txt" \
+            --ignore-vuln GHSA-f4j7-r4q5-qw2c \
+            --ignore-vuln GHSA-36p7-vc44-83pf \
+            --ignore-vuln GHSA-2wm9-hf6c-p5cr \
+            --ignore-vuln GHSA-xph7-9rjv-w5fr
+      - name: Store the raw Python report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: python-dependency-audit
+          path: ${{ runner.temp }}/python-audit.json
+          if-no-files-found: error
+
+  javascript:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: 1.4.2
+      - name: Install the frozen workspace with scripts disabled
+        run: bun --no-env-file install --frozen-lockfile --ignore-scripts
+      - name: Audit all workspace dependencies
+        run: bun --no-env-file audit --json > "$RUNNER_TEMP/javascript-audit.json"
+      - name: Store the raw JavaScript report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: javascript-dependency-audit
+          path: ${{ runner.temp }}/javascript-audit.json
+          if-no-files-found: error
