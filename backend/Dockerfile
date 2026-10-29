@@ -1,4 +1,4 @@
-FROM oven/bun:1.4.2 AS frontend-build
+FROM oven/bun:1.4.4 AS frontend-build
 
 WORKDIR /app
 
