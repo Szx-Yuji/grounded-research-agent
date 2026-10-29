@@ -1,21 +1,14 @@
-import asyncio
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from sqlalchemy import text
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
-from app.core.db import engine
-from app.services.assistant_conversations import (
-    recover_interrupted_turns,
-    shutdown_assistant,
-)
-from app.services.research_runs import recover_interrupted_runs, shutdown_research
+from app.runtime.http import CorrelationMiddleware
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -30,24 +23,9 @@ if settings.SENTRY_DSN and settings.FASTAPI_ENV != "development":
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    # A DB-scoped advisory lock enforces the process-local worker contract.
-    # A second server must not mark a live server's runs as interrupted.
-    with engine.connect() as connection:
-        acquired = connection.scalar(text("SELECT pg_try_advisory_lock(748382951)"))
-        connection.commit()
-        if not acquired:
-            raise RuntimeError(
-                "Grounded Research requires one backend process per database. Stop the other instance first."
-            )
-        try:
-            await asyncio.to_thread(recover_interrupted_runs)
-            await asyncio.to_thread(recover_interrupted_turns)
-            yield
-        finally:
-            shutdown_research()
-            shutdown_assistant()
-            connection.execute(text("SELECT pg_advisory_unlock(748382951)"))
-            connection.commit()
+    # API processes only enqueue/read work. Worker leases own execution and
+    # recovery, so multiple API processes never cancel each other's jobs.
+    yield
 
 
 app = FastAPI(
@@ -56,6 +34,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
+app.add_middleware(CorrelationMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

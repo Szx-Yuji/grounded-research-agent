@@ -6,6 +6,7 @@ from app.research.errors import ResearchCancelled
 from app.research.events import emit_log
 from app.research.llm import get_client
 from app.research.models import ResearchState
+from app.runtime.context import BudgetExceeded
 
 SYSTEM_PROMPT = (
     "You are a research planner. Given a user's question, break it down into "
@@ -70,7 +71,7 @@ def planner_node(state: ResearchState) -> dict:
             "current_agent": "Planner",
             "error": None,
         }
-    except ResearchCancelled:
+    except ResearchCancelled, BudgetExceeded:
         raise
     except Exception:
         return {

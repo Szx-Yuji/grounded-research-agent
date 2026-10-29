@@ -28,6 +28,8 @@ dependencies = [
     "langgraph>=1.2.11",
     "tavily-python>=0.8.5,<1",
     "redis>=5,<9",
+    "mcp>=2.3.0,<3",
+    "pyyaml>=6,<7",
 ]
 
 [dependency-groups]

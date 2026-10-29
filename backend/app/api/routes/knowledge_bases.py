@@ -3,7 +3,6 @@ import uuid
 
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     File,
     HTTPException,
     Query,
@@ -32,7 +31,7 @@ from app.models import (
     Message,
     get_datetime_utc,
 )
-from app.services.document_processor import ingest_document
+from app.services import durable_jobs
 from app.services.document_storage import (
     delete_document_file,
     save_document_file,
@@ -184,7 +183,6 @@ async def upload_knowledge_document(
     knowledge_base_id: uuid.UUID,
     session: SessionDep,
     current_user: CurrentUser,
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
 ) -> KnowledgeDocument:
     statement = select(KnowledgeBase).where(
@@ -243,6 +241,8 @@ async def upload_knowledge_document(
 
     try:
         session.add(document)
+        session.flush()
+        durable_jobs.enqueue_document(session, document)
         session.commit()
         session.refresh(document)
 
@@ -250,11 +250,6 @@ async def upload_knowledge_document(
         session.rollback()
         delete_document_file(storage_key)
         raise
-
-    background_tasks.add_task(
-        ingest_document,
-        document.id,
-    )
 
     return document
 
@@ -377,8 +372,18 @@ def delete_knowledge_base(
     )
 
     storage_keys = session.exec(storage_keys_statement).all()
+    document_ids = list(
+        session.exec(
+            select(KnowledgeDocument.id).where(
+                KnowledgeDocument.knowledge_base_id == knowledge_base.id
+            )
+        ).all()
+    )
 
     try:
+        durable_jobs.delete_target_jobs(
+            session, "document", document_ids, current_user.id
+        )
         delete_knowledge_base_vectors(knowledge_base.id)
 
         # A removed source must not make its owner's ongoing chat unusable.
@@ -557,6 +562,9 @@ def delete_knowledge_document(
     storage_key = document.storage_key
 
     try:
+        durable_jobs.delete_target_jobs(
+            session, "document", [document.id], current_user.id
+        )
         delete_document_vectors(
             knowledge_base_id,
             document.id,
@@ -601,7 +609,6 @@ def retry_knowledge_document(
     document_id: uuid.UUID,
     session: SessionDep,
     current_user: CurrentUser,
-    background_tasks: BackgroundTasks,
 ) -> KnowledgeDocument:
     statement = (
         select(KnowledgeDocument)
@@ -621,6 +628,9 @@ def retry_knowledge_document(
             detail="Document not found",
         )
 
+    # Job fencing always precedes the document row lock, including explicit retry.
+    durable_jobs.enqueue_document(session, document)
+    session.refresh(document, with_for_update=True)
     if document.status != "failed":
         raise HTTPException(
             status_code=409,
@@ -634,10 +644,5 @@ def retry_knowledge_document(
     session.add(document)
     session.commit()
     session.refresh(document)
-
-    background_tasks.add_task(
-        ingest_document,
-        document.id,
-    )
 
     return document

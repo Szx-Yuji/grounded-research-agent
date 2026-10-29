@@ -1,0 +1,1466 @@
+{
+  "scope": "retrieval ranking only; no generated answers, no fact verification",
+  "mode": "fixture",
+  "dense_provider_used": false,
+  "fixture_warning": "Toy concept-cosine dense substitute tests wiring only; this is not a real embedding/answer-quality benchmark.",
+  "dataset_sha256": "a85282ceb45129339850abb39e18af517600424ab2f80413c290eef361e9a1f6",
+  "configuration": {
+    "tokenizer": "nfkc-en-model-han-bigram-v1",
+    "bm25_k1": 1.2,
+    "bm25_b": 0.75,
+    "rrf_constant": 60,
+    "candidate_limit": 20,
+    "k": 4,
+    "embedding_model": null
+  },
+  "timing_scope": "ranking_ms excludes tokenization/vector preparation, provider network time and generation; do not call it end-to-end latency",
+  "aggregates": [
+    {
+      "split": "dev",
+      "method": "bm25",
+      "queries": 15,
+      "answerable": 14,
+      "unanswerable": 1,
+      "recall": 0.8571428571428571,
+      "mrr": 0.9285714285714286,
+      "ndcg": 0.9037478081612228,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.10179446738523741
+    },
+    {
+      "split": "dev",
+      "method": "dense_fixture_concept_cosine",
+      "queries": 15,
+      "answerable": 14,
+      "unanswerable": 1,
+      "recall": 0.8571428571428571,
+      "mrr": 0.8214285714285714,
+      "ndcg": 0.8162598096115689,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.019685998753023643
+    },
+    {
+      "split": "dev",
+      "method": "hybrid_rrf",
+      "queries": 15,
+      "answerable": 14,
+      "unanswerable": 1,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 0.9974243166654752,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.12286093454652776
+    },
+    {
+      "split": "holdout",
+      "method": "bm25",
+      "queries": 11,
+      "answerable": 9,
+      "unanswerable": 2,
+      "recall": 0.8333333333333334,
+      "mrr": 0.8888888888888888,
+      "ndcg": 0.86958162856984,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.10164390815506605
+    },
+    {
+      "split": "holdout",
+      "method": "dense_fixture_concept_cosine",
+      "queries": 11,
+      "answerable": 9,
+      "unanswerable": 2,
+      "recall": 1.0,
+      "mrr": 0.9444444444444444,
+      "ndcg": 0.9589921948412731,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.01789018278941512
+    },
+    {
+      "split": "holdout",
+      "method": "hybrid_rrf",
+      "queries": 11,
+      "answerable": 9,
+      "unanswerable": 2,
+      "recall": 1.0,
+      "mrr": 0.9444444444444444,
+      "ndcg": 0.9549855763209012,
+      "empty_result": 1.0,
+      "mean_ranking_ms": 0.12061736594081264
+    }
+  ],
+  "queries": [
+    {
+      "query_id": "q01",
+      "split": "dev",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.1343749900115654,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q01",
+      "split": "dev",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.029625007300637662,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q01",
+      "split": "dev",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.1677919935900718,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q02",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "bm25",
+      "ranked_ids": [
+        "retention-archive",
+        "retention-live"
+      ],
+      "relevance": {
+        "retention-archive": 2
+      },
+      "ranking_ms": 0.10704199667088687,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q02",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "retention-archive",
+        "retention-live"
+      ],
+      "relevance": {
+        "retention-archive": 2
+      },
+      "ranking_ms": 0.024791996111162007,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q02",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "retention-archive",
+        "retention-live"
+      ],
+      "relevance": {
+        "retention-archive": 2
+      },
+      "ranking_ms": 0.1340429880656302,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q03",
+      "split": "dev",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "jwt-expiry"
+      ],
+      "relevance": {
+        "jwt-expiry": 2
+      },
+      "ranking_ms": 0.09587498789187521,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q03",
+      "split": "dev",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "jwt-expiry",
+        "invite"
+      ],
+      "relevance": {
+        "jwt-expiry": 2
+      },
+      "ranking_ms": 0.021915999241173267,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q03",
+      "split": "dev",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "jwt-expiry",
+        "invite"
+      ],
+      "relevance": {
+        "jwt-expiry": 2
+      },
+      "ranking_ms": 0.1193739881273359,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q04",
+      "split": "dev",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "upload-limit",
+        "private",
+        "context",
+        "refund"
+      ],
+      "relevance": {
+        "upload-limit": 2
+      },
+      "ranking_ms": 0.1204169966513291,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q04",
+      "split": "dev",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [],
+      "relevance": {
+        "upload-limit": 2
+      },
+      "ranking_ms": 0.015541998436674476,
+      "recall": 0.0,
+      "mrr": 0,
+      "ndcg": 0.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q04",
+      "split": "dev",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "upload-limit",
+        "private",
+        "context",
+        "refund"
+      ],
+      "relevance": {
+        "upload-limit": 2
+      },
+      "ranking_ms": 0.13787500211037695,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q05",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "bm25",
+      "ranked_ids": [
+        "rx700",
+        "rx710"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.09541699546389282,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q05",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.018457998521625996,
+      "recall": 1.0,
+      "mrr": 0.5,
+      "ndcg": 0.6309297535714574,
+      "empty_result": null
+    },
+    {
+      "query_id": "q05",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "rx700",
+        "rx710"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.11508299212437123,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q06",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "bm25",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.0923750048968941,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q06",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.017457990907132626,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q06",
+      "split": "dev",
+      "category": "exact_model",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.11104099394287914,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q07",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "bm25",
+      "ranked_ids": [
+        "reset-en",
+        "backup"
+      ],
+      "relevance": {
+        "reset-en": 2,
+        "reset-cn": 1
+      },
+      "ranking_ms": 0.09366701124235988,
+      "recall": 0.5,
+      "mrr": 1.0,
+      "ndcg": 0.8262346571285599,
+      "empty_result": null
+    },
+    {
+      "query_id": "q07",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "reset-cn",
+        "reset-en",
+        "backup"
+      ],
+      "relevance": {
+        "reset-en": 2,
+        "reset-cn": 1
+      },
+      "ranking_ms": 0.02229199162684381,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 0.7967075809905066,
+      "empty_result": null
+    },
+    {
+      "query_id": "q07",
+      "split": "dev",
+      "category": "paraphrase",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "reset-en",
+        "backup",
+        "reset-cn"
+      ],
+      "relevance": {
+        "reset-en": 2,
+        "reset-cn": 1
+      },
+      "ranking_ms": 0.11737599561456591,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 0.9639404333166532,
+      "empty_result": null
+    },
+    {
+      "query_id": "q08",
+      "split": "dev",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "reset-cn"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.10612500773277134,
+      "recall": 0.5,
+      "mrr": 1.0,
+      "ndcg": 0.8262346571285599,
+      "empty_result": null
+    },
+    {
+      "query_id": "q08",
+      "split": "dev",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "reset-cn",
+        "reset-en"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.01575000351294875,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q08",
+      "split": "dev",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "reset-cn",
+        "reset-en"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.12291701568756253,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q09",
+      "split": "dev",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "refund"
+      ],
+      "relevance": {
+        "refund": 2
+      },
+      "ranking_ms": 0.10745800682343543,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q09",
+      "split": "dev",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [],
+      "relevance": {
+        "refund": 2
+      },
+      "ranking_ms": 0.014707999071106315,
+      "recall": 0.0,
+      "mrr": 0,
+      "ndcg": 0.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q09",
+      "split": "dev",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "refund"
+      ],
+      "relevance": {
+        "refund": 2
+      },
+      "ranking_ms": 0.12291601160541177,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q10",
+      "split": "dev",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "redis-cache"
+      ],
+      "relevance": {
+        "redis-cache": 2
+      },
+      "ranking_ms": 0.08974999946076423,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q10",
+      "split": "dev",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "redis-cache"
+      ],
+      "relevance": {
+        "redis-cache": 2
+      },
+      "ranking_ms": 0.018999999156221747,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q10",
+      "split": "dev",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "redis-cache"
+      ],
+      "relevance": {
+        "redis-cache": 2
+      },
+      "ranking_ms": 0.10958299390040338,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q11",
+      "split": "dev",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "retry",
+        "rate-limit"
+      ],
+      "relevance": {
+        "retry": 2
+      },
+      "ranking_ms": 0.09395800589118153,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q11",
+      "split": "dev",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "retry",
+        "rate-limit"
+      ],
+      "relevance": {
+        "retry": 2
+      },
+      "ranking_ms": 0.019875005818903446,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q11",
+      "split": "dev",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "retry",
+        "rate-limit"
+      ],
+      "relevance": {
+        "retry": 2
+      },
+      "ranking_ms": 0.11491600889712572,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q12",
+      "split": "dev",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "row-lock"
+      ],
+      "relevance": {
+        "row-lock": 2
+      },
+      "ranking_ms": 0.09125001088250428,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q12",
+      "split": "dev",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "row-lock"
+      ],
+      "relevance": {
+        "row-lock": 2
+      },
+      "ranking_ms": 0.02058300015050918,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q12",
+      "split": "dev",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "row-lock"
+      ],
+      "relevance": {
+        "row-lock": 2
+      },
+      "ranking_ms": 0.11258301674388349,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q13",
+      "split": "dev",
+      "category": "cross_language",
+      "method": "bm25",
+      "ranked_ids": [
+        "reset-cn",
+        "private",
+        "context"
+      ],
+      "relevance": {
+        "cancel": 2
+      },
+      "ranking_ms": 0.11566600005608052,
+      "recall": 0.0,
+      "mrr": 0,
+      "ndcg": 0.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q13",
+      "split": "dev",
+      "category": "cross_language",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "cancel"
+      ],
+      "relevance": {
+        "cancel": 2
+      },
+      "ranking_ms": 0.016749996575526893,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q13",
+      "split": "dev",
+      "category": "cross_language",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "cancel",
+        "reset-cn",
+        "private",
+        "context"
+      ],
+      "relevance": {
+        "cancel": 2
+      },
+      "ranking_ms": 0.13391600805334747,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q14",
+      "split": "dev",
+      "category": "technical_term",
+      "method": "bm25",
+      "ranked_ids": [
+        "hybrid"
+      ],
+      "relevance": {
+        "hybrid": 2
+      },
+      "ranking_ms": 0.0934169947868213,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q14",
+      "split": "dev",
+      "category": "technical_term",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "hybrid"
+      ],
+      "relevance": {
+        "hybrid": 2
+      },
+      "ranking_ms": 0.019374987459741533,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q14",
+      "split": "dev",
+      "category": "technical_term",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "hybrid"
+      ],
+      "relevance": {
+        "hybrid": 2
+      },
+      "ranking_ms": 0.11362499208189547,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q15",
+      "split": "dev",
+      "category": "unanswerable",
+      "method": "bm25",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.09012500231619924,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q15",
+      "split": "dev",
+      "category": "unanswerable",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.019166007405146956,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q15",
+      "split": "dev",
+      "category": "unanswerable",
+      "method": "hybrid_rrf",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.10987401765305549,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q16",
+      "split": "holdout",
+      "category": "cross_language",
+      "method": "bm25",
+      "ranked_ids": [
+        "context",
+        "reset-cn",
+        "private"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.11991700739599764,
+      "recall": 0.0,
+      "mrr": 0,
+      "ndcg": 0.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q16",
+      "split": "holdout",
+      "category": "cross_language",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.017290993127971888,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q16",
+      "split": "holdout",
+      "category": "cross_language",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "context",
+        "retention-live",
+        "reset-cn",
+        "retention-archive"
+      ],
+      "relevance": {
+        "retention-live": 2
+      },
+      "ranking_ms": 0.13891600247006863,
+      "recall": 1.0,
+      "mrr": 0.5,
+      "ndcg": 0.6309297535714574,
+      "empty_result": null
+    },
+    {
+      "query_id": "q17",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "bm25",
+      "ranked_ids": [
+        "rx700",
+        "rx710"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.09008299093693495,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q17",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.017084006685763597,
+      "recall": 1.0,
+      "mrr": 0.5,
+      "ndcg": 0.6309297535714574,
+      "empty_result": null
+    },
+    {
+      "query_id": "q17",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "rx700",
+        "rx710"
+      ],
+      "relevance": {
+        "rx700": 2
+      },
+      "ranking_ms": 0.10816700523719192,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q18",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "bm25",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.0897919962881133,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q18",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.015875004464760423,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q18",
+      "split": "holdout",
+      "category": "exact_model",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "rx710",
+        "rx700"
+      ],
+      "relevance": {
+        "rx710": 2
+      },
+      "ranking_ms": 0.10662501154001802,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q19",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "reset-cn",
+        "context",
+        "private"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.12174999574199319,
+      "recall": 0.5,
+      "mrr": 1.0,
+      "ndcg": 0.8262346571285599,
+      "empty_result": null
+    },
+    {
+      "query_id": "q19",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "reset-cn",
+        "reset-en"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.015958998119458556,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q19",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "reset-cn",
+        "context",
+        "reset-en",
+        "private"
+      ],
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "ranking_ms": 0.13891799608245492,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 0.9639404333166532,
+      "empty_result": null
+    },
+    {
+      "query_id": "q20",
+      "split": "holdout",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "backup",
+        "redis-cache",
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "backup": 2
+      },
+      "ranking_ms": 0.09216599573846906,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q20",
+      "split": "holdout",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "backup",
+        "redis-cache",
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "backup": 2
+      },
+      "ranking_ms": 0.020374995074234903,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q20",
+      "split": "holdout",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "backup",
+        "redis-cache",
+        "retention-live",
+        "retention-archive"
+      ],
+      "relevance": {
+        "backup": 2
+      },
+      "ranking_ms": 0.114206995931454,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q21",
+      "split": "holdout",
+      "category": "english",
+      "method": "bm25",
+      "ranked_ids": [
+        "invite",
+        "support"
+      ],
+      "relevance": {
+        "invite": 2
+      },
+      "ranking_ms": 0.09154199506156147,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q21",
+      "split": "holdout",
+      "category": "english",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "invite",
+        "support"
+      ],
+      "relevance": {
+        "invite": 2
+      },
+      "ranking_ms": 0.020207997295074165,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q21",
+      "split": "holdout",
+      "category": "english",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "invite",
+        "support"
+      ],
+      "relevance": {
+        "invite": 2
+      },
+      "ranking_ms": 0.11274998541921377,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q22",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "context",
+        "private",
+        "reset-cn",
+        "upload-limit"
+      ],
+      "relevance": {
+        "context": 2
+      },
+      "ranking_ms": 0.11683300544973463,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q22",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "context"
+      ],
+      "relevance": {
+        "context": 2
+      },
+      "ranking_ms": 0.015792000340297818,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q22",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "context",
+        "private",
+        "reset-cn",
+        "upload-limit"
+      ],
+      "relevance": {
+        "context": 2
+      },
+      "ranking_ms": 0.13387500075623393,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q23",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "bm25",
+      "ranked_ids": [
+        "private",
+        "context",
+        "refund",
+        "upload-limit"
+      ],
+      "relevance": {
+        "private": 2
+      },
+      "ranking_ms": 0.12333400081843138,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q23",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "private",
+        "context"
+      ],
+      "relevance": {
+        "private": 2
+      },
+      "ranking_ms": 0.016125006368383765,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q23",
+      "split": "holdout",
+      "category": "chinese",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "private",
+        "context",
+        "refund",
+        "upload-limit"
+      ],
+      "relevance": {
+        "private": 2
+      },
+      "ranking_ms": 0.14066700532566756,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q24",
+      "split": "holdout",
+      "category": "technical_term",
+      "method": "bm25",
+      "ranked_ids": [
+        "rate-limit"
+      ],
+      "relevance": {
+        "rate-limit": 2
+      },
+      "ranking_ms": 0.09337499795947224,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q24",
+      "split": "holdout",
+      "category": "technical_term",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [
+        "rate-limit"
+      ],
+      "relevance": {
+        "rate-limit": 2
+      },
+      "ranking_ms": 0.020166000467725098,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q24",
+      "split": "holdout",
+      "category": "technical_term",
+      "method": "hybrid_rrf",
+      "ranked_ids": [
+        "rate-limit"
+      ],
+      "relevance": {
+        "rate-limit": 2
+      },
+      "ranking_ms": 0.11429100413806736,
+      "recall": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.0,
+      "empty_result": null
+    },
+    {
+      "query_id": "q25",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "bm25",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.08841599628794938,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q25",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.01912500010803342,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q25",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "hybrid_rrf",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.10816600115504116,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q26",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "bm25",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.09087500802706927,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q26",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "dense_fixture_concept_cosine",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.0187920086318627,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    },
+    {
+      "query_id": "q26",
+      "split": "holdout",
+      "category": "unanswerable",
+      "method": "hybrid_rrf",
+      "ranked_ids": [],
+      "relevance": {},
+      "ranking_ms": 0.11020901729352772,
+      "recall": null,
+      "mrr": null,
+      "ndcg": null,
+      "empty_result": 1.0
+    }
+  ]
+}

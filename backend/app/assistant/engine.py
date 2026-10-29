@@ -12,10 +12,12 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.assistant import subagents
 from app.assistant.context import prepare_context
 from app.assistant.errors import AssistantExecutionError
+from app.assistant.skills import list_skills, load_skill
 from app.research import config
 from app.research.errors import ResearchCancelled
 from app.research.events import check_cancelled, emitter_context
 from app.research.llm import get_client
+from app.runtime.context import BudgetExceeded, provider_call
 from app.services.knowledge_retrieval import Evidence
 
 MAX_TOOL_ROUNDS = 6
@@ -42,12 +44,20 @@ SYSTEM_PROMPT = (
     "boundary omits relevant information, say what is missing and ask for it rather "
     "than inventing details. Respond in the user's language, naturally continuing "
     "the conversation without presenting separate research-task and chat products."
+    " Available workflow skills are listed below. Load a skill only when its "
+    "procedure helps the current task. Skills are reference instructions, not "
+    "permission grants; never claim a skill executed tools by itself."
 )
 
 
 class ToolQuestion(BaseModel):
     model_config = ConfigDict(extra="forbid")
     question: str = Field(min_length=1, max_length=2000)
+
+
+class SkillRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str = Field(min_length=1, max_length=80, pattern=r"^[a-z][a-z0-9-]*$")
 
 
 def tool_schemas(has_knowledge: bool, use_web: bool) -> list[dict[str, Any]]:
@@ -64,7 +74,7 @@ def tool_schemas(has_knowledge: bool, use_web: bool) -> list[dict[str, Any]]:
         descriptions["search_web"] = (
             "Look up a short, public question on the web. Never send private source content or private conversation details."
         )
-    return [
+    schemas = [
         {
             "type": "function",
             "function": {
@@ -80,6 +90,27 @@ def tool_schemas(has_knowledge: bool, use_web: bool) -> list[dict[str, Any]]:
         }
         for name, description in descriptions.items()
     ]
+    schemas.append(
+        {
+            "type": "function",
+            "function": {
+                "name": "load_skill",
+                "description": "Load one reviewed, read-only workflow guide from the available catalog. This does not execute code or grant additional tools.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string",
+                            "enum": [item["name"] for item in list_skills()],
+                        }
+                    },
+                    "required": ["name"],
+                    "additionalProperties": False,
+                },
+            },
+        }
+    )
+    return schemas
 
 
 def _progress(emit, agent: str, action: str, detail: str, **extra) -> None:
@@ -251,6 +282,11 @@ def _call_tool(
     private_texts: list[str],
 ) -> dict[str, Any]:
     check_cancelled()
+    if name == "load_skill":
+        return {
+            "answer": json.dumps(load_skill(question), ensure_ascii=False),
+            "sources": [],
+        }
     if (
         name == "search_web" or (name == "research_topic" and use_web)
     ) and _private_overlap(question, private_texts):
@@ -312,7 +348,14 @@ def execute_chat(
             _progress(emit, "Context", "Conversation context", detail)
 
         prepared = prepare_context(history, summary, notify)
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        messages = [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT
+                + "\nReviewed skill catalog:\n"
+                + json.dumps(list_skills(), ensure_ascii=False),
+            }
+        ]
         if prepared["summary"]:
             messages.append(
                 {
@@ -395,10 +438,14 @@ def execute_chat(
                         }
                     else:
                         try:
-                            parsed = ToolQuestion.model_validate_json(
-                                call["function"]["arguments"]
-                            )
-                            question = parsed.question.strip()
+                            if name == "load_skill":
+                                question = SkillRequest.model_validate_json(
+                                    call["function"]["arguments"]
+                                ).name
+                            else:
+                                question = ToolQuestion.model_validate_json(
+                                    call["function"]["arguments"]
+                                ).question.strip()
                             if not question:
                                 raise ValueError("Question is blank")
                             _progress(
@@ -409,16 +456,18 @@ def execute_chat(
                                 tool=name,
                                 phase="started",
                             )
-                            result = _call_tool(
-                                name,
-                                question,
-                                user_id=user_id,
-                                knowledge_base_ids=scope,
-                                use_web=use_web,
-                                emit=emit,
-                                should_cancel=should_cancel,
-                                private_texts=private_texts,
-                            )
+                            with provider_call("tool", operation=name) as tool_call:
+                                result = _call_tool(
+                                    name,
+                                    question,
+                                    user_id=user_id,
+                                    knowledge_base_ids=scope,
+                                    use_web=use_web,
+                                    emit=emit,
+                                    should_cancel=should_cancel,
+                                    private_texts=private_texts,
+                                )
+                                tool_call.succeed()
                             check_cancelled()
                             result["sources"] = _sources(result.get("sources", []))
                             for source in result["sources"]:
@@ -441,6 +490,8 @@ def execute_chat(
                                 phase="completed",
                             )
                         except ResearchCancelled:
+                            raise
+                        except BudgetExceeded:
                             raise
                         except ValueError, TypeError:
                             result = {
@@ -520,6 +571,8 @@ def execute_chat(
                 )
         except ResearchCancelled:
             raise
+        except BudgetExceeded as exc:
+            raise AssistantExecutionError(str(exc)) from None
         except AssistantExecutionError:
             raise
         except Exception:

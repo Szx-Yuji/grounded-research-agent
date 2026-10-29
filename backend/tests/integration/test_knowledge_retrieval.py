@@ -71,7 +71,7 @@ def test_retrieval_filters_nonready_missing_and_cross_knowledge_documents(
     evidence = knowledge_retrieval.retrieve_evidence(
         actor_a.id, [actor_a.knowledge_base_id], "Policy", k=4
     )
-    assert calls == [(actor_a.knowledge_base_id, 4)]
+    assert calls == [(actor_a.knowledge_base_id, 16)]
     assert len(evidence) == 1
     assert evidence[0].document_id == str(ready_id)
     assert evidence[0].content == "Allowed evidence"

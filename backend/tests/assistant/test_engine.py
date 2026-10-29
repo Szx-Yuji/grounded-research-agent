@@ -149,8 +149,9 @@ def test_plain_followup_streams_with_same_conversation_and_prior_sources(
         history=history,
         emit=lambda kind, data: events.append((kind, data)),
     )
-    assert len(seen) == 1 and seen[0]["stream"] is True
-    assert "tools" not in seen[0]
+    assert len(seen) == 2 and seen[-1]["stream"] is True
+    assert "tools" not in seen[-1]
+    assert {tool["function"]["name"] for tool in seen[0]["tools"]} == {"load_skill"}
     assert any(
         item.get("content") == history[0]["content"] for item in seen[0]["messages"]
     )
@@ -387,7 +388,7 @@ def test_cancellation_closes_final_stream_and_stops_tokens(monkeypatch, modules)
 
     with pytest.raises(ResearchCancelled):
         run(modules, emit=emit, should_cancel=lambda: cancelled)
-    assert stream.closed and len(seen) == 1
+    assert stream.closed and len(seen) == 2
     assert [data["content"] for kind, data in events if kind == "token"] == ["first"]
 
 
@@ -513,3 +514,31 @@ def test_delegate_notes_have_explicit_size_limits(modules):
     assert all(len(json.dumps(note, ensure_ascii=False)) <= 4000 for note in notes)
     assert len(json.dumps(notes, ensure_ascii=False)) <= 12000
     assert all("shortened" in note["answer"] for note in notes)
+
+
+def test_skill_progressive_loading_keeps_scope_and_records_tool_budget(
+    monkeypatch, modules
+):
+    from app.runtime.context import ExecutionLimits, execution_context
+
+    seen, _ = install_client(
+        monkeypatch,
+        modules,
+        decisions=[
+            response(tools=[call("load_skill", '{"name":"source-comparison"}')]),
+            response("ready"),
+        ],
+    )
+    with execution_context(limits=ExecutionLimits()) as context:
+        run(modules)
+    catalog = seen[0]["messages"][0]["content"]
+    assert "source-comparison" in catalog
+    # The detailed recipe enters only in a tool observation after explicit loading.
+    observation = next(item for item in seen[1]["messages"] if item["role"] == "tool")
+    assert "instructions" in observation["content"]
+    assert all(
+        tool["function"]["name"] not in {"search_web", "ask_knowledge"}
+        for tool in seen[0]["tools"]
+    )
+    assert context.counts["tool"] == 1
+    assert context.calls[0]["operation"] == "load_skill"

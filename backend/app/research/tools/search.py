@@ -1,8 +1,8 @@
-import time
-
 from tavily import TavilyClient
 
 from app.research import cache, config
+from app.research.events import check_cancelled
+from app.runtime.context import provider_call, request_fingerprint, request_timeout
 
 _client: TavilyClient | None = None
 
@@ -33,6 +33,7 @@ def search_web(
     request could not be made."""
     if max_results is None:
         max_results = config.SEARCH_MAX_RESULTS
+    check_cancelled()
 
     if use_cache:
         hit = cache.get(query, max_results)
@@ -40,42 +41,51 @@ def search_web(
             return hit
 
     client = get_client()
-    for attempt in range(1, config.SEARCH_MAX_ATTEMPTS + 1):
-        try:
+    # A timeout does not prove that the provider did not execute or bill a
+    # search. Record the unknown outcome and require an explicit new intent.
+    try:
+        with provider_call(
+            "search",
+            operation="tavily.search",
+            request_key=request_fingerprint(
+                "search", {"query": query, "max_results": max_results}
+            ),
+        ) as call:
             response = client.search(
                 query=query,
                 max_results=max_results,
                 search_depth="basic",
+                timeout=request_timeout(30),
             )
-        except Exception:  # noqa: BLE001 - Tavily raises bare Exceptions
-            if attempt < config.SEARCH_MAX_ATTEMPTS:
-                time.sleep(config.SEARCH_BACKOFF_SECONDS * attempt)
+            call.succeed()
+    except Exception as exc:
+        from app.research.errors import ResearchCancelled
+        from app.runtime.context import BudgetExceeded
+
+        if isinstance(exc, (BudgetExceeded, ResearchCancelled)):
+            raise
+        raise SearchError(
+            "Search outcome is unknown or unavailable; no automatic replay was attempted"
+        ) from None
+
+    if not isinstance(response, dict) or not isinstance(response.get("results"), list):
+        raise SearchError("Search provider returned an invalid response")
+    results = []
+    for result in response["results"][:max_results]:
+        if not isinstance(result, dict):
             continue
-
-        if not isinstance(response, dict) or not isinstance(
-            response.get("results"), list
-        ):
-            raise SearchError("Search provider returned an invalid response")
-        results = []
-        for result in response["results"][:max_results]:
-            if not isinstance(result, dict):
-                continue
-            if not all(
-                isinstance(result.get(key, ""), str) for key in ("title", "url")
-            ):
-                continue
-            content = result.get("content") or ""
-            if not isinstance(content, str):
-                continue
-            results.append(
-                {
-                    "title": result.get("title", "")[:1000],
-                    "url": result.get("url", "")[:4000],
-                    "content": content[:500],
-                }
-            )
-        if use_cache and results:
-            cache.set(query, max_results, results)
-        return results
-
-    raise SearchError(f"Search failed after {config.SEARCH_MAX_ATTEMPTS} attempts")
+        if not all(isinstance(result.get(key, ""), str) for key in ("title", "url")):
+            continue
+        content = result.get("content") or ""
+        if not isinstance(content, str):
+            continue
+        results.append(
+            {
+                "title": result.get("title", "")[:1000],
+                "url": result.get("url", "")[:4000],
+                "content": content[:500],
+            }
+        )
+    if use_cache and results:
+        cache.set(query, max_results, results)
+    return results

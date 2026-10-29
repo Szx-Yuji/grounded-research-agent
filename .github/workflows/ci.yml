@@ -54,6 +54,17 @@ jobs:
         working-directory: backend
       - run: uv run --frozen pytest --confcutdir=tests/assistant_integration tests/assistant_integration -q
         working-directory: backend
+      - name: Budget, protocol and retrieval regressions
+        run: |
+          uv run --frozen pytest --confcutdir=tests/runtime tests/runtime -q
+          uv run --frozen pytest --confcutdir=tests/mcp_skills tests/mcp_skills -q
+          uv run --frozen pytest --confcutdir=tests/retrieval tests/retrieval -q
+          uv run --frozen pytest --confcutdir=tests/durable_integration tests/durable_integration -q
+          uv run --frozen pytest --confcutdir=tests/runtime_integration tests/runtime_integration -q
+          uv run --frozen pytest --confcutdir=tests/retrieval_pg tests/retrieval_pg -q
+        working-directory: backend
+      - name: Provider-free retrieval ablation
+        run: uv run --frozen --package app python evals/retrieval/run.py --mode fixture
       - run: uv run --frozen pytest tests/api tests/crud -q
         working-directory: backend
       - run: uv run --frozen ruff check app
@@ -62,3 +73,9 @@ jobs:
       - run: bun run playwright install --with-deps chromium
         working-directory: frontend
       - run: bun run --filter frontend test:research
+      - name: Keep evaluation results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: retrieval-ablation
+          path: evals/results/retrieval-fixture.*

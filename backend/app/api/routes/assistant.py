@@ -21,6 +21,7 @@ from app.models import (
     AssistantMessageCreate,
     AssistantMessagePublic,
     AssistantMessagesPublic,
+    AssistantTurn,
     AssistantTurnPublic,
     get_datetime_utc,
 )
@@ -116,6 +117,19 @@ def update_conversation(
 def delete_conversation(
     conversation_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
 ):
+    service.owned_conversation(session, conversation_id, current_user.id)
+    from app.services.durable_jobs import delete_target_jobs, lock_conversation_intents
+
+    lock_conversation_intents(session, conversation_id)
+
+    target_ids = list(
+        session.exec(
+            select(AssistantTurn.id).where(
+                AssistantTurn.conversation_id == conversation_id
+            )
+        ).all()
+    )
+    delete_target_jobs(session, "assistant", target_ids, current_user.id)
     conversation = service.owned_conversation(
         session, conversation_id, current_user.id, lock=True
     )
@@ -148,9 +162,14 @@ def list_messages(
     "/{conversation_id}/messages", response_model=AssistantTurnPublic, status_code=202
 )
 def send_message(
-    conversation_id: uuid.UUID, body: AssistantMessageCreate, current_user: CurrentUser
+    conversation_id: uuid.UUID,
+    body: AssistantMessageCreate,
+    current_user: CurrentUser,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
 ):
-    return service.start_turn(current_user.id, conversation_id, body.content)
+    return service.start_turn(
+        current_user.id, conversation_id, body.content, idempotency_key
+    )
 
 
 @router.get(

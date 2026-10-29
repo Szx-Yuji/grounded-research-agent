@@ -48,13 +48,13 @@ services:
 
   backend:
     image: backend:latest
-    volumes:
+    volumes: &app-volumes
       - app-upload-data:/app/storage
     depends_on:
       db:
         condition: service_healthy
         restart: true
-    environment:
+    environment: &app-environment
       PROJECT_NAME: ${PROJECT_NAME:?Variable not set}
       FRONTEND_HOST: ${FRONTEND_HOST:-http://localhost:5178}
       TAVILY_API_KEY: ${TAVILY_API_KEY:-}
@@ -80,7 +80,7 @@ services:
       DOCUMENT_STORAGE_DIR: /app/storage/documents
 
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/utils/health-check/"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/utils/ready/', timeout=3)"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -98,6 +98,34 @@ services:
       # Route HTTP traffic for this domain
       - traefik.http.routers.backend-http.rule=Host(`${DOMAIN:-localhost}`)
       - traefik.http.routers.backend-http.entrypoints=http
+
+  # Run `docker compose run --rm prestart` before starting API/worker.
+  # Migrations stay outside API lifespans so replicas cannot race on DDL.
+  prestart:
+    image: backend:latest
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: *app-environment
+    volumes: *app-volumes
+    command: ["bash", "scripts/prestart.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles: ["setup"]
+
+  worker:
+    image: backend:latest
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment: *app-environment
+    volumes: *app-volumes
+    command: ["python", "-m", "app.worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   app-db-data:

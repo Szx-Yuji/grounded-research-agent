@@ -229,6 +229,68 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * CallView
+ */
+export type CallView = {
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Parent Id
+     */
+    parent_id: string | null;
+    /**
+     * Kind
+     */
+    kind: string;
+    /**
+     * Operation
+     */
+    operation: string;
+    /**
+     * Model
+     */
+    model: string | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Reserved Output Tokens
+     */
+    reserved_output_tokens: number;
+    /**
+     * Input Tokens
+     */
+    input_tokens: number | null;
+    /**
+     * Output Tokens
+     */
+    output_tokens: number | null;
+    /**
+     * Duration Ms
+     */
+    duration_ms: number | null;
+    /**
+     * First Token Ms
+     */
+    first_token_ms: number | null;
+    /**
+     * Error Type
+     */
+    error_type: string | null;
+    /**
+     * Started At
+     */
+    started_at: string;
+    /**
+     * Finished At
+     */
+    finished_at: string | null;
+};
+
+/**
  * ChatMessagePublic
  */
 export type ChatMessagePublic = {
@@ -332,6 +394,120 @@ export type ConversationsPublic = {
      * Count
      */
     count: number;
+};
+
+/**
+ * Evidence
+ */
+export type Evidence = {
+    /**
+     * Source Id
+     */
+    source_id: string;
+    /**
+     * Kind
+     */
+    kind: 'knowledge' | 'web';
+    /**
+     * Content
+     */
+    content: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Document Id
+     */
+    document_id?: string | null;
+    /**
+     * Chunk Index
+     */
+    chunk_index?: number | null;
+    retrieval?: RetrievalMetadata | null;
+};
+
+/**
+ * EvidenceQuery
+ */
+export type EvidenceQuery = {
+    /**
+     * Knowledge Base Ids
+     */
+    knowledge_base_ids: Array<string>;
+    /**
+     * Query
+     */
+    query: string;
+    /**
+     * K
+     */
+    k?: number;
+};
+
+/**
+ * EvidenceResults
+ */
+export type EvidenceResults = {
+    /**
+     * Sources
+     */
+    sources: Array<Evidence>;
+};
+
+/**
+ * ExecutionView
+ */
+export type ExecutionView = {
+    /**
+     * Job Id
+     */
+    job_id: string;
+    /**
+     * Target Id
+     */
+    target_id: string;
+    /**
+     * Kind
+     */
+    kind: 'assistant' | 'research';
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Attempt Count
+     */
+    attempt_count: number;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Started At
+     */
+    started_at: string | null;
+    /**
+     * Finished At
+     */
+    finished_at: string | null;
+    /**
+     * Deadline At
+     */
+    deadline_at: string | null;
+    /**
+     * Calls
+     */
+    calls: Array<CallView>;
+    usage: UsageView;
+    /**
+     * Calls Truncated
+     */
+    calls_truncated: boolean;
 };
 
 /**
@@ -745,6 +921,44 @@ export type ResearchRunsPublic = {
 };
 
 /**
+ * RetrievalMetadata
+ */
+export type RetrievalMetadata = {
+    /**
+     * Method
+     */
+    method: 'dense' | 'lexical' | 'hybrid' | 'dense_legacy';
+    /**
+     * Rank
+     */
+    rank: number;
+    /**
+     * Fusion Score
+     */
+    fusion_score?: number | null;
+    /**
+     * Lexical Score
+     */
+    lexical_score?: number | null;
+    /**
+     * Dense Rank
+     */
+    dense_rank?: number | null;
+    /**
+     * Lexical Rank
+     */
+    lexical_rank?: number | null;
+    /**
+     * Index Version
+     */
+    index_version?: string | null;
+    /**
+     * Warnings
+     */
+    warnings?: Array<string>;
+};
+
+/**
  * Token
  */
 export type Token = {
@@ -770,6 +984,38 @@ export type UpdatePassword = {
      * New Password
      */
     new_password: string;
+};
+
+/**
+ * UsageView
+ */
+export type UsageView = {
+    /**
+     * Call Counts
+     */
+    call_counts: {
+        [key: string]: number;
+    };
+    /**
+     * Known Input Tokens
+     */
+    known_input_tokens: number;
+    /**
+     * Known Output Tokens
+     */
+    known_output_tokens: number;
+    /**
+     * Usage Complete
+     */
+    usage_complete: boolean;
+    /**
+     * Reserved Output Tokens
+     */
+    reserved_output_tokens: number;
+    /**
+     * Estimated Cost
+     */
+    estimated_cost?: null;
 };
 
 /**
@@ -1357,6 +1603,26 @@ export type utilsHealthCheckResponses = {
 };
 
 export type utilsHealthCheckResponse = utilsHealthCheckResponses[keyof utilsHealthCheckResponses];
+
+export type utilsReadyData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/utils/ready/';
+};
+
+export type utilsReadyResponses = {
+    /**
+     * Response Utils-Ready
+     *
+     * Successful Response
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type utilsReadyResponse = utilsReadyResponses[keyof utilsReadyResponses];
 
 export type itemsReadItemsData = {
     body?: never;
@@ -2210,6 +2476,12 @@ export type researchListRunsResponse = researchListRunsResponses[keyof researchL
 
 export type researchCreateRunData = {
     body: ResearchCreate;
+    headers?: {
+        /**
+         * Idempotency-Key
+         */
+        'Idempotency-Key'?: string | null;
+    };
     path?: never;
     query?: never;
     url: '/api/v1/research/runs';
@@ -2543,6 +2815,12 @@ export type assistantListMessagesResponse = assistantListMessagesResponses[keyof
 
 export type assistantSendMessageData = {
     body: AssistantMessageCreate;
+    headers?: {
+        /**
+         * Idempotency-Key
+         */
+        'Idempotency-Key'?: string | null;
+    };
     path: {
         /**
          * Conversation Id
@@ -2713,6 +2991,111 @@ export type assistantStreamEventsResponses = {
      */
     200: unknown;
 };
+
+export type integrationsSearchEvidenceData = {
+    body: EvidenceQuery;
+    path?: never;
+    query?: never;
+    url: '/api/v1/integrations/search-evidence';
+};
+
+export type integrationsSearchEvidenceErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type integrationsSearchEvidenceError = integrationsSearchEvidenceErrors[keyof integrationsSearchEvidenceErrors];
+
+export type integrationsSearchEvidenceResponses = {
+    /**
+     * Successful Response
+     */
+    200: EvidenceResults;
+};
+
+export type integrationsSearchEvidenceResponse = integrationsSearchEvidenceResponses[keyof integrationsSearchEvidenceResponses];
+
+export type integrationsReviewedSkillsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/integrations/skills';
+};
+
+export type integrationsReviewedSkillsResponses = {
+    /**
+     * Response Integrations-Reviewed Skills
+     *
+     * Successful Response
+     */
+    200: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+export type integrationsReviewedSkillsResponse = integrationsReviewedSkillsResponses[keyof integrationsReviewedSkillsResponses];
+
+export type integrationsTurnExecutionData = {
+    body?: never;
+    path: {
+        /**
+         * Turn Id
+         */
+        turn_id: string;
+    };
+    query?: never;
+    url: '/api/v1/integrations/turns/{turn_id}/execution';
+};
+
+export type integrationsTurnExecutionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type integrationsTurnExecutionError = integrationsTurnExecutionErrors[keyof integrationsTurnExecutionErrors];
+
+export type integrationsTurnExecutionResponses = {
+    /**
+     * Successful Response
+     */
+    200: ExecutionView;
+};
+
+export type integrationsTurnExecutionResponse = integrationsTurnExecutionResponses[keyof integrationsTurnExecutionResponses];
+
+export type integrationsResearchExecutionData = {
+    body?: never;
+    path: {
+        /**
+         * Run Id
+         */
+        run_id: string;
+    };
+    query?: never;
+    url: '/api/v1/integrations/research/{run_id}/execution';
+};
+
+export type integrationsResearchExecutionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+};
+
+export type integrationsResearchExecutionError = integrationsResearchExecutionErrors[keyof integrationsResearchExecutionErrors];
+
+export type integrationsResearchExecutionResponses = {
+    /**
+     * Successful Response
+     */
+    200: ExecutionView;
+};
+
+export type integrationsResearchExecutionResponse = integrationsResearchExecutionResponses[keyof integrationsResearchExecutionResponses];
 
 export type privateCreateUserData = {
     body: PrivateUserCreate;

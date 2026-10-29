@@ -2,7 +2,7 @@
 
 import { type Client, formDataBodySerializer, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { assistantCancelTurnData, assistantCancelTurnErrors, assistantCancelTurnResponses, assistantCreateConversationData, assistantCreateConversationErrors, assistantCreateConversationResponses, assistantDeleteConversationData, assistantDeleteConversationErrors, assistantDeleteConversationResponses, assistantGetActiveTurnData, assistantGetActiveTurnErrors, assistantGetActiveTurnResponses, assistantListConversationsData, assistantListConversationsErrors, assistantListConversationsResponses, assistantListMessagesData, assistantListMessagesErrors, assistantListMessagesResponses, assistantReadConversationData, assistantReadConversationErrors, assistantReadConversationResponses, assistantReadTurnData, assistantReadTurnErrors, assistantReadTurnResponses, assistantSendMessageData, assistantSendMessageErrors, assistantSendMessageResponses, assistantStreamEventsData, assistantStreamEventsErrors, assistantStreamEventsResponses, assistantUpdateConversationData, assistantUpdateConversationErrors, assistantUpdateConversationResponses, conversationsAskInConversationData, conversationsAskInConversationErrors, conversationsAskInConversationResponses, conversationsCreateConversationData, conversationsCreateConversationErrors, conversationsCreateConversationResponses, conversationsDeleteConversationData, conversationsDeleteConversationErrors, conversationsDeleteConversationResponses, conversationsReadConversationData, conversationsReadConversationErrors, conversationsReadConversationMessagesData, conversationsReadConversationMessagesErrors, conversationsReadConversationMessagesResponses, conversationsReadConversationResponses, conversationsReadConversationsData, conversationsReadConversationsErrors, conversationsReadConversationsResponses, conversationsStreamAnswerInConversationData, conversationsStreamAnswerInConversationErrors, conversationsStreamAnswerInConversationResponses, conversationsUpdateConversationData, conversationsUpdateConversationErrors, conversationsUpdateConversationResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, knowledgeBasesAskKnowledgeBaseData, knowledgeBasesAskKnowledgeBaseErrors, knowledgeBasesAskKnowledgeBaseResponses, knowledgeBasesCreateKnowledgeBaseData, knowledgeBasesCreateKnowledgeBaseErrors, knowledgeBasesCreateKnowledgeBaseResponses, knowledgeBasesDeleteKnowledgeBaseData, knowledgeBasesDeleteKnowledgeBaseErrors, knowledgeBasesDeleteKnowledgeBaseResponses, knowledgeBasesDeleteKnowledgeDocumentData, knowledgeBasesDeleteKnowledgeDocumentErrors, knowledgeBasesDeleteKnowledgeDocumentResponses, knowledgeBasesDownloadKnowledgeDocumentData, knowledgeBasesDownloadKnowledgeDocumentErrors, knowledgeBasesDownloadKnowledgeDocumentResponses, knowledgeBasesReadKnowledgeBaseData, knowledgeBasesReadKnowledgeBaseErrors, knowledgeBasesReadKnowledgeBaseResponses, knowledgeBasesReadKnowledgeBasesData, knowledgeBasesReadKnowledgeBasesErrors, knowledgeBasesReadKnowledgeBasesResponses, knowledgeBasesReadKnowledgeDocumentsData, knowledgeBasesReadKnowledgeDocumentsErrors, knowledgeBasesReadKnowledgeDocumentsResponses, knowledgeBasesRetryKnowledgeDocumentData, knowledgeBasesRetryKnowledgeDocumentErrors, knowledgeBasesRetryKnowledgeDocumentResponses, knowledgeBasesSearchKnowledgeBaseData, knowledgeBasesSearchKnowledgeBaseErrors, knowledgeBasesSearchKnowledgeBaseResponses, knowledgeBasesUpdateKnowledgeBaseData, knowledgeBasesUpdateKnowledgeBaseErrors, knowledgeBasesUpdateKnowledgeBaseResponses, knowledgeBasesUploadKnowledgeDocumentData, knowledgeBasesUploadKnowledgeDocumentErrors, knowledgeBasesUploadKnowledgeDocumentResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, researchCancelRunData, researchCancelRunErrors, researchCancelRunResponses, researchCreateRunData, researchCreateRunErrors, researchCreateRunResponses, researchDeleteRunData, researchDeleteRunErrors, researchDeleteRunResponses, researchListRunsData, researchListRunsErrors, researchListRunsResponses, researchReadRunData, researchReadRunErrors, researchReadRunResponses, researchStreamEventsData, researchStreamEventsErrors, researchStreamEventsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
+import type { assistantCancelTurnData, assistantCancelTurnErrors, assistantCancelTurnResponses, assistantCreateConversationData, assistantCreateConversationErrors, assistantCreateConversationResponses, assistantDeleteConversationData, assistantDeleteConversationErrors, assistantDeleteConversationResponses, assistantGetActiveTurnData, assistantGetActiveTurnErrors, assistantGetActiveTurnResponses, assistantListConversationsData, assistantListConversationsErrors, assistantListConversationsResponses, assistantListMessagesData, assistantListMessagesErrors, assistantListMessagesResponses, assistantReadConversationData, assistantReadConversationErrors, assistantReadConversationResponses, assistantReadTurnData, assistantReadTurnErrors, assistantReadTurnResponses, assistantSendMessageData, assistantSendMessageErrors, assistantSendMessageResponses, assistantStreamEventsData, assistantStreamEventsErrors, assistantStreamEventsResponses, assistantUpdateConversationData, assistantUpdateConversationErrors, assistantUpdateConversationResponses, conversationsAskInConversationData, conversationsAskInConversationErrors, conversationsAskInConversationResponses, conversationsCreateConversationData, conversationsCreateConversationErrors, conversationsCreateConversationResponses, conversationsDeleteConversationData, conversationsDeleteConversationErrors, conversationsDeleteConversationResponses, conversationsReadConversationData, conversationsReadConversationErrors, conversationsReadConversationMessagesData, conversationsReadConversationMessagesErrors, conversationsReadConversationMessagesResponses, conversationsReadConversationResponses, conversationsReadConversationsData, conversationsReadConversationsErrors, conversationsReadConversationsResponses, conversationsStreamAnswerInConversationData, conversationsStreamAnswerInConversationErrors, conversationsStreamAnswerInConversationResponses, conversationsUpdateConversationData, conversationsUpdateConversationErrors, conversationsUpdateConversationResponses, integrationsResearchExecutionData, integrationsResearchExecutionErrors, integrationsResearchExecutionResponses, integrationsReviewedSkillsData, integrationsReviewedSkillsResponses, integrationsSearchEvidenceData, integrationsSearchEvidenceErrors, integrationsSearchEvidenceResponses, integrationsTurnExecutionData, integrationsTurnExecutionErrors, integrationsTurnExecutionResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, knowledgeBasesAskKnowledgeBaseData, knowledgeBasesAskKnowledgeBaseErrors, knowledgeBasesAskKnowledgeBaseResponses, knowledgeBasesCreateKnowledgeBaseData, knowledgeBasesCreateKnowledgeBaseErrors, knowledgeBasesCreateKnowledgeBaseResponses, knowledgeBasesDeleteKnowledgeBaseData, knowledgeBasesDeleteKnowledgeBaseErrors, knowledgeBasesDeleteKnowledgeBaseResponses, knowledgeBasesDeleteKnowledgeDocumentData, knowledgeBasesDeleteKnowledgeDocumentErrors, knowledgeBasesDeleteKnowledgeDocumentResponses, knowledgeBasesDownloadKnowledgeDocumentData, knowledgeBasesDownloadKnowledgeDocumentErrors, knowledgeBasesDownloadKnowledgeDocumentResponses, knowledgeBasesReadKnowledgeBaseData, knowledgeBasesReadKnowledgeBaseErrors, knowledgeBasesReadKnowledgeBaseResponses, knowledgeBasesReadKnowledgeBasesData, knowledgeBasesReadKnowledgeBasesErrors, knowledgeBasesReadKnowledgeBasesResponses, knowledgeBasesReadKnowledgeDocumentsData, knowledgeBasesReadKnowledgeDocumentsErrors, knowledgeBasesReadKnowledgeDocumentsResponses, knowledgeBasesRetryKnowledgeDocumentData, knowledgeBasesRetryKnowledgeDocumentErrors, knowledgeBasesRetryKnowledgeDocumentResponses, knowledgeBasesSearchKnowledgeBaseData, knowledgeBasesSearchKnowledgeBaseErrors, knowledgeBasesSearchKnowledgeBaseResponses, knowledgeBasesUpdateKnowledgeBaseData, knowledgeBasesUpdateKnowledgeBaseErrors, knowledgeBasesUpdateKnowledgeBaseResponses, knowledgeBasesUploadKnowledgeDocumentData, knowledgeBasesUploadKnowledgeDocumentErrors, knowledgeBasesUploadKnowledgeDocumentResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginRecoverPasswordData, loginRecoverPasswordErrors, loginRecoverPasswordHtmlContentData, loginRecoverPasswordHtmlContentErrors, loginRecoverPasswordHtmlContentResponses, loginRecoverPasswordResponses, loginResetPasswordData, loginResetPasswordErrors, loginResetPasswordResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, researchCancelRunData, researchCancelRunErrors, researchCancelRunResponses, researchCreateRunData, researchCreateRunErrors, researchCreateRunResponses, researchDeleteRunData, researchDeleteRunErrors, researchDeleteRunResponses, researchListRunsData, researchListRunsErrors, researchListRunsResponses, researchReadRunData, researchReadRunErrors, researchReadRunResponses, researchStreamEventsData, researchStreamEventsErrors, researchStreamEventsResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsReadyData, utilsReadyResponses, utilsTestEmailData, utilsTestEmailErrors, utilsTestEmailResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -36,7 +36,7 @@ export class LoginService {
             }
         });
     }
-    
+
     /**
      * Test Token
      *
@@ -50,7 +50,7 @@ export class LoginService {
             ...options
         });
     }
-    
+
     /**
      * Recover Password
      *
@@ -63,7 +63,7 @@ export class LoginService {
             ...options
         });
     }
-    
+
     /**
      * Reset Password
      *
@@ -80,7 +80,7 @@ export class LoginService {
             }
         });
     }
-    
+
     /**
      * Recover Password Html Content
      *
@@ -110,7 +110,7 @@ export class UsersService {
             ...options
         });
     }
-    
+
     /**
      * Create User
      *
@@ -128,7 +128,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Delete User Me
      *
@@ -142,7 +142,7 @@ export class UsersService {
             ...options
         });
     }
-    
+
     /**
      * Read User Me
      *
@@ -156,7 +156,7 @@ export class UsersService {
             ...options
         });
     }
-    
+
     /**
      * Update User Me
      *
@@ -174,7 +174,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Update Password Me
      *
@@ -192,7 +192,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Register User
      *
@@ -209,7 +209,7 @@ export class UsersService {
             }
         });
     }
-    
+
     /**
      * Delete User
      *
@@ -223,7 +223,7 @@ export class UsersService {
             ...options
         });
     }
-    
+
     /**
      * Read User By Id
      *
@@ -237,7 +237,7 @@ export class UsersService {
             ...options
         });
     }
-    
+
     /**
      * Update User
      *
@@ -271,7 +271,7 @@ export class UtilsService {
             ...options
         });
     }
-    
+
     /**
      * Health Check
      */
@@ -279,6 +279,17 @@ export class UtilsService {
         return (options?.client ?? client).get<utilsHealthCheckResponses, unknown, ThrowOnError>({
             responseType: 'json',
             url: '/api/v1/utils/health-check/',
+            ...options
+        });
+    }
+
+    /**
+     * Ready
+     */
+    public static ready<ThrowOnError extends boolean = true>(options?: Options<utilsReadyData, ThrowOnError>) {
+        return (options?.client ?? client).get<utilsReadyResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            url: '/api/v1/utils/ready/',
             ...options
         });
     }
@@ -298,7 +309,7 @@ export class ItemsService {
             ...options
         });
     }
-    
+
     /**
      * Create Item
      *
@@ -316,7 +327,7 @@ export class ItemsService {
             }
         });
     }
-    
+
     /**
      * Delete Item
      *
@@ -330,7 +341,7 @@ export class ItemsService {
             ...options
         });
     }
-    
+
     /**
      * Read Item
      *
@@ -344,7 +355,7 @@ export class ItemsService {
             ...options
         });
     }
-    
+
     /**
      * Update Item
      *
@@ -376,7 +387,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Create Knowledge Base
      */
@@ -392,7 +403,7 @@ export class KnowledgeBasesService {
             }
         });
     }
-    
+
     /**
      * Delete Knowledge Base
      */
@@ -404,7 +415,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Read Knowledge Base
      */
@@ -416,7 +427,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Update Knowledge Base
      */
@@ -432,7 +443,7 @@ export class KnowledgeBasesService {
             }
         });
     }
-    
+
     /**
      * Read Knowledge Documents
      */
@@ -444,7 +455,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Upload Knowledge Document
      */
@@ -461,7 +472,7 @@ export class KnowledgeBasesService {
             }
         });
     }
-    
+
     /**
      * Download Knowledge Document
      */
@@ -472,7 +483,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Search Knowledge Base
      */
@@ -484,7 +495,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Ask Knowledge Base
      */
@@ -500,7 +511,7 @@ export class KnowledgeBasesService {
             }
         });
     }
-    
+
     /**
      * Delete Knowledge Document
      */
@@ -512,7 +523,7 @@ export class KnowledgeBasesService {
             ...options
         });
     }
-    
+
     /**
      * Retry Knowledge Document
      */
@@ -538,7 +549,7 @@ export class ConversationsService {
             ...options
         });
     }
-    
+
     /**
      * Create Conversation
      */
@@ -554,7 +565,7 @@ export class ConversationsService {
             }
         });
     }
-    
+
     /**
      * Delete Conversation
      */
@@ -566,7 +577,7 @@ export class ConversationsService {
             ...options
         });
     }
-    
+
     /**
      * Read Conversation
      */
@@ -578,7 +589,7 @@ export class ConversationsService {
             ...options
         });
     }
-    
+
     /**
      * Update Conversation
      */
@@ -594,7 +605,7 @@ export class ConversationsService {
             }
         });
     }
-    
+
     /**
      * Read Conversation Messages
      */
@@ -606,7 +617,7 @@ export class ConversationsService {
             ...options
         });
     }
-    
+
     /**
      * Ask In Conversation
      */
@@ -622,7 +633,7 @@ export class ConversationsService {
             }
         });
     }
-    
+
     /**
      * Stream Answer In Conversation
      */
@@ -651,7 +662,7 @@ export class ResearchService {
             ...options
         });
     }
-    
+
     /**
      * Create Run
      */
@@ -667,7 +678,7 @@ export class ResearchService {
             }
         });
     }
-    
+
     /**
      * Delete Run
      */
@@ -678,7 +689,7 @@ export class ResearchService {
             ...options
         });
     }
-    
+
     /**
      * Read Run
      */
@@ -690,7 +701,7 @@ export class ResearchService {
             ...options
         });
     }
-    
+
     /**
      * Cancel Run
      */
@@ -702,7 +713,7 @@ export class ResearchService {
             ...options
         });
     }
-    
+
     /**
      * Stream Events
      */
@@ -728,7 +739,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Create Conversation
      */
@@ -744,7 +755,7 @@ export class AssistantService {
             }
         });
     }
-    
+
     /**
      * Delete Conversation
      */
@@ -755,7 +766,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Read Conversation
      */
@@ -767,7 +778,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Update Conversation
      */
@@ -783,7 +794,7 @@ export class AssistantService {
             }
         });
     }
-    
+
     /**
      * List Messages
      */
@@ -795,7 +806,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Send Message
      */
@@ -811,7 +822,7 @@ export class AssistantService {
             }
         });
     }
-    
+
     /**
      * Get Active Turn
      */
@@ -823,7 +834,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Read Turn
      */
@@ -835,7 +846,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Cancel Turn
      */
@@ -847,7 +858,7 @@ export class AssistantService {
             ...options
         });
     }
-    
+
     /**
      * Stream Events
      */
@@ -856,6 +867,62 @@ export class AssistantService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/assistant/conversations/{conversation_id}/turns/{turn_id}/events',
+            ...options
+        });
+    }
+}
+
+export class IntegrationsService {
+    /**
+     * Search Evidence
+     *
+     * Authenticate locally; models never get to choose the caller identity.
+     */
+    public static searchEvidence<ThrowOnError extends boolean = true>(options: Options<integrationsSearchEvidenceData, ThrowOnError>) {
+        return (options.client ?? client).post<integrationsSearchEvidenceResponses, integrationsSearchEvidenceErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/integrations/search-evidence',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+
+    /**
+     * Reviewed Skills
+     */
+    public static reviewedSkills<ThrowOnError extends boolean = true>(options?: Options<integrationsReviewedSkillsData, ThrowOnError>) {
+        return (options?.client ?? client).get<integrationsReviewedSkillsResponses, unknown, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/integrations/skills',
+            ...options
+        });
+    }
+
+    /**
+     * Turn Execution
+     */
+    public static turnExecution<ThrowOnError extends boolean = true>(options: Options<integrationsTurnExecutionData, ThrowOnError>) {
+        return (options.client ?? client).get<integrationsTurnExecutionResponses, integrationsTurnExecutionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/integrations/turns/{turn_id}/execution',
+            ...options
+        });
+    }
+
+    /**
+     * Research Execution
+     */
+    public static researchExecution<ThrowOnError extends boolean = true>(options: Options<integrationsResearchExecutionData, ThrowOnError>) {
+        return (options.client ?? client).get<integrationsResearchExecutionResponses, integrationsResearchExecutionErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/integrations/research/{run_id}/execution',
             ...options
         });
     }

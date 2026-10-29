@@ -5,13 +5,13 @@ import logging
 import threading
 import time
 import uuid
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session, select
 
+from app.assistant.errors import AssistantExecutionError
 from app.core.config import settings
 from app.core.db import engine
 from app.models import (
@@ -25,14 +25,13 @@ from app.models import (
     KnowledgeDocument,
     get_datetime_utc,
 )
+from app.research.errors import ResearchExecutionError
+from app.retrieval_models import KnowledgeChunk
+from app.services import durable_jobs
 from app.services.knowledge_retrieval import validate_knowledge_access
 
 logger = logging.getLogger(__name__)
 TERMINAL = {"succeeded", "failed", "cancelled"}
-_lock = threading.RLock()
-_active: dict[uuid.UUID, threading.Event] = {}
-_executor: ThreadPoolExecutor | None = None
-_pending: dict[uuid.UUID, tuple[str, dict[str, Any] | None, str | None]] = {}
 
 
 def owned_conversation(
@@ -93,89 +92,78 @@ def _add_event(
 
 
 def recover_interrupted_turns() -> None:
-    with Session(engine) as session:
-        for turn in session.exec(
-            select(AssistantTurn).where(AssistantTurn.status.in_(["queued", "running"]))
-        ):
-            turn.status = "failed"
-            turn.error_message = "The assistant was interrupted by a server restart. Send the message again to continue."
-            turn.updated_at = get_datetime_utc()
-            session.add(turn)
-            _add_event(session, turn, "error", {"message": turn.error_message})
-        session.commit()
+    """Compatibility maintenance hook: only expired leases are interrupted."""
+    durable_jobs.expire_abandoned()
 
 
 def shutdown_assistant() -> None:
-    global _executor
-    with _lock:
-        for signal in _active.values():
-            signal.set()
-        pool, _executor = _executor, None
-    if pool:
-        pool.shutdown(wait=False, cancel_futures=True)
+    """API shutdown never cancels jobs owned by an independent worker."""
 
 
 def start_turn(
-    owner_id: uuid.UUID, conversation_id: uuid.UUID, content: str
+    owner_id: uuid.UUID,
+    conversation_id: uuid.UUID,
+    content: str,
+    idempotency_key: str | None = None,
 ) -> AssistantTurnPublic:
-    global _executor
-    reconcile_finishes()
-    with _lock:
-        if len(_active) + len(_pending) >= settings.RESEARCH_MAX_WORKERS:
-            raise HTTPException(429, "The assistant is busy. Try again shortly.")
-        with Session(engine) as session:
-            conversation = owned_conversation(
-                session, conversation_id, owner_id, lock=True
+    key = durable_jobs.validate_key(idempotency_key)
+    digest = durable_jobs.request_hash(
+        {"conversation_id": str(conversation_id), "content": content}
+    )
+    with Session(engine) as session:
+        previous = durable_jobs.existing_intent(
+            session, owner_id, "assistant", str(conversation_id), key, digest
+        )
+        if previous is not None:
+            owned_conversation(session, conversation_id, owner_id)
+            turn = session.get(AssistantTurn, previous.target_id)
+            if turn is None:
+                raise HTTPException(410, "The original turn has been deleted")
+            return AssistantTurnPublic.model_validate(turn)
+        durable_jobs.enforce_capacity(session, owner_id)
+        durable_jobs.lock_conversation_intents(session, conversation_id)
+        conversation = owned_conversation(session, conversation_id, owner_id, lock=True)
+        if active_turn(session, conversation_id):
+            raise HTTPException(409, "Wait for the current reply or cancel it first")
+        validate_knowledge_access(
+            session,
+            owner_id,
+            [uuid.UUID(value) for value in conversation.knowledge_base_ids],
+        )
+        if not settings.DEEPSEEK_API_KEY:
+            raise HTTPException(503, "Configure DEEPSEEK_API_KEY before chatting")
+        turn = AssistantTurn(conversation_id=conversation_id)
+        session.add(turn)
+        session.flush()
+        session.add(
+            AssistantMessage(
+                conversation_id=conversation_id,
+                turn_id=turn.id,
+                role="user",
+                content=content,
             )
-            if active_turn(session, conversation_id):
-                raise HTTPException(
-                    409, "Wait for the current reply or cancel it first"
-                )
-            validate_knowledge_access(
-                session,
-                owner_id,
-                [uuid.UUID(value) for value in conversation.knowledge_base_ids],
-            )
-            if not settings.DEEPSEEK_API_KEY:
-                raise HTTPException(
-                    503, "Configure DEEPSEEK_API_KEY in .env before chatting"
-                )
-            turn = AssistantTurn(conversation_id=conversation_id)
-            session.add(turn)
-            session.flush()
-            session.add(
-                AssistantMessage(
-                    conversation_id=conversation_id,
-                    turn_id=turn.id,
-                    role="user",
-                    content=content,
-                )
-            )
-            if conversation.title == "New conversation":
-                conversation.title = content[:80]
-            conversation.updated_at = get_datetime_utc()
-            session.add(conversation)
-            session.commit()
-            session.refresh(turn)
-            result = AssistantTurnPublic.model_validate(turn)
-        signal = threading.Event()
-        _active[turn.id] = signal
-        if _executor is None:
-            _executor = ThreadPoolExecutor(
-                max_workers=settings.RESEARCH_MAX_WORKERS,
-                thread_name_prefix="assistant",
-            )
-        try:
-            _executor.submit(_execute_turn, turn.id, signal)
-        except Exception:
-            _active.pop(turn.id, None)
-            _finish(
-                turn.id,
-                "failed",
-                error="The assistant worker could not start. Try again.",
-            )
-            raise HTTPException(503, "Assistant worker unavailable") from None
-    return result
+        )
+        if conversation.title == "New conversation":
+            conversation.title = content[:80]
+        conversation.updated_at = get_datetime_utc()
+        session.add(conversation)
+        durable_jobs.enqueue(
+            session,
+            owner_id=owner_id,
+            kind="assistant",
+            target_id=turn.id,
+            payload={
+                "content": content,
+                "knowledge_base_ids": list(conversation.knowledge_base_ids),
+                "use_web": conversation.use_web,
+            },
+            key=key,
+            scope=str(conversation_id),
+            digest=digest,
+        )
+        session.commit()
+        session.refresh(turn)
+        return AssistantTurnPublic.model_validate(turn)
 
 
 def _valid_sources(
@@ -203,6 +191,23 @@ def _valid_sources(
         if document is None:
             dropped = True
         else:
+            metadata = source.get("retrieval")
+            if isinstance(metadata, dict) and metadata.get("index_version"):
+                chunk = session.exec(
+                    select(KnowledgeChunk).where(
+                        KnowledgeChunk.document_id == document_id,
+                        KnowledgeChunk.chunk_index == source.get("chunk_index"),
+                        KnowledgeChunk.index_version == metadata["index_version"],
+                    )
+                ).first()
+                if (
+                    chunk is None
+                    or source.get("source_id")
+                    != f"kb:{document_id}:{chunk.chunk_index}:{chunk.content_hash[:12]}"
+                    or source.get("content") != chunk.content[:12000]
+                ):
+                    dropped = True
+                    continue
             valid.append(source)
     return valid, dropped
 
@@ -247,6 +252,7 @@ def load_context(
 
 def _append_event(turn_id: uuid.UUID, kind: str, payload: dict[str, Any]) -> None:
     with Session(engine) as session:
+        durable_jobs.assert_lease(session)
         turn = session.exec(
             select(AssistantTurn).where(AssistantTurn.id == turn_id).with_for_update()
         ).first()
@@ -264,11 +270,17 @@ def _persist_finish(
     error: str | None = None,
 ) -> None:
     with Session(engine) as session:
+        job = durable_jobs.assert_lease(session, permit_cancelled=True)
         turn = session.exec(
             select(AssistantTurn).where(AssistantTurn.id == turn_id).with_for_update()
         ).first()
         if turn is None or turn.status in TERMINAL:
+            if turn is not None and turn.status == "cancelled":
+                durable_jobs.finish_in_transaction(session, "cancelled")
+                session.commit()
             return
+        if job.cancel_requested_at:
+            status, result, error = "cancelled", None, None
         conversation = session.get(AssistantConversation, turn.conversation_id)
         if conversation is None:
             return
@@ -319,6 +331,7 @@ def _persist_finish(
                 "error",
                 {"message": error or "The assistant could not finish this reply"},
             )
+        durable_jobs.finish_in_transaction(session, status, error)
         session.commit()
 
 
@@ -332,30 +345,27 @@ def _finish(
     for attempt in range(3):
         try:
             _persist_finish(turn_id, status, result=result, error=error)
-            with _lock:
-                _pending.pop(turn_id, None)
+            return
+        except durable_jobs.LeaseLost:
             return
         except SQLAlchemyError:
             if attempt < 2:
                 time.sleep(0.1 * (2**attempt))
-    logger.error("Assistant turn %s is waiting for terminal-state persistence", turn_id)
-    with _lock:
-        _pending[turn_id] = (status, result, error)
+    logger.error(
+        "Assistant turn %s could not persist its outcome; its lease will be marked interrupted, never replayed automatically",
+        turn_id,
+    )
 
 
 def reconcile_finishes() -> None:
-    with _lock:
-        pending = list(_pending.items())
-    for turn_id, (status, result, error) in pending:
-        try:
-            _persist_finish(turn_id, status, result=result, error=error)
-        except SQLAlchemyError:
-            continue
-        with _lock:
-            _pending.pop(turn_id, None)
+    """Terminal recovery is performed by the worker lease sweeper, not API reads."""
 
 
 def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
+    if durable_jobs.current_claim() is None:
+        raise durable_jobs.LeaseLost(
+            "Assistant execution requires a claimed durable job"
+        )
     started = time.monotonic()
     buffer = ""
     last_flush = started
@@ -364,6 +374,7 @@ def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
         return (
             cancel.is_set()
             or time.monotonic() - started > settings.RESEARCH_TIMEOUT_SECONDS
+            or durable_jobs.should_stop(durable_jobs.current_claim())
         )
 
     def flush():
@@ -389,6 +400,7 @@ def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
         from app.assistant import execute_chat
 
         with Session(engine) as session:
+            job = durable_jobs.assert_lease(session)
             turn = session.exec(
                 select(AssistantTurn)
                 .where(AssistantTurn.id == turn_id)
@@ -404,15 +416,15 @@ def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
             session.add(turn)
             session.commit()
             history, summary, covered = load_context(session, conversation)
-            user_message = session.exec(
+            session.exec(
                 select(AssistantMessage).where(
                     AssistantMessage.turn_id == turn_id, AssistantMessage.role == "user"
                 )
             ).one()
-            content, owner = user_message.content, conversation.owner_id
+            content, owner = job.payload["content"], conversation.owner_id
             kb_ids, use_web = (
-                list(conversation.knowledge_base_ids),
-                conversation.use_web,
+                list(job.payload["knowledge_base_ids"]),
+                job.payload["use_web"],
             )
             existing_summary_sources = conversation.summary_sources if summary else []
         result = execute_chat(
@@ -447,7 +459,7 @@ def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
         result["_summary_sources"] = list(summary_sources.values())
         flush()
         _finish(turn_id, "succeeded", result=result)
-    except Exception:
+    except Exception as exc:
         if should_cancel():
             _finish(
                 turn_id,
@@ -457,15 +469,14 @@ def _execute_turn(turn_id: uuid.UUID, cancel: threading.Event) -> None:
                 else "The assistant timed out. Try a narrower request.",
             )
         else:
-            logger.exception("Assistant turn %s failed", turn_id)
+            logger.error("Assistant turn %s failed (%s)", turn_id, type(exc).__name__)
             _finish(
                 turn_id,
                 "failed",
-                error="The assistant could not finish this reply. Check configuration or try again.",
+                error=str(exc)
+                if isinstance(exc, (AssistantExecutionError, ResearchExecutionError))
+                else "The assistant could not finish this reply. Check configuration or try again.",
             )
-    finally:
-        with _lock:
-            _active.pop(turn_id, None)
 
 
 def cancel_turn(
@@ -475,15 +486,7 @@ def cancel_turn(
     owner_id: uuid.UUID,
 ) -> AssistantTurnPublic:
     turn = owned_turn(session, conversation_id, turn_id, owner_id)
-    session.refresh(turn, with_for_update=True)
-    if turn.status not in TERMINAL:
-        turn.status = "cancelled"
-        turn.updated_at = get_datetime_utc()
-        session.add(turn)
-        _add_event(session, turn, "cancelled", {"turn": turn_payload(turn)})
-        session.commit()
-        session.refresh(turn)
-        with _lock:
-            if signal := _active.get(turn_id):
-                signal.set()
+    durable_jobs.cancel_target(session, "assistant", turn.id)
+    session.commit()
+    session.refresh(turn)
     return AssistantTurnPublic.model_validate(turn)

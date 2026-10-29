@@ -5,6 +5,7 @@ from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 from app.core.config import settings
+from app.runtime.gateway import EmbeddingGateway
 
 
 def create_chat_model() -> ChatOpenAI:
@@ -19,8 +20,9 @@ def create_chat_model() -> ChatOpenAI:
         api_key=settings.DEEPSEEK_API_KEY,
         base_url=settings.DEEPSEEK_BASE_URL,
         temperature=0,
+        max_tokens=4096,
         timeout=60,
-        max_retries=2,
+        max_retries=0,
     )
 
 
@@ -28,13 +30,18 @@ def create_embeddings() -> OpenAIEmbeddings:
     if not settings.ZHIPUAI_API_KEY:
         raise RuntimeError("ZHIPUAI_API_KEY is not configured")
 
-    return OpenAIEmbeddings(
+    embeddings = OpenAIEmbeddings(
         model=settings.ZHIPUAI_EMBEDDING_MODEL,
         api_key=settings.ZHIPUAI_API_KEY,
         base_url=settings.ZHIPUAI_EMBEDDING_BASE_URL,
         request_timeout=30,
-        max_retries=1,
+        max_retries=0,
     )
+
+    embeddings.client = EmbeddingGateway(
+        embeddings.client, settings.ZHIPUAI_EMBEDDING_MODEL
+    )
+    return embeddings
 
 
 def get_collection_name(

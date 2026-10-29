@@ -56,6 +56,9 @@ services:
       # Use the Let's Encrypt resolver
       - traefik.http.routers.backend-https.tls.certresolver=le
 
+  worker:
+    restart: always
+
 volumes:
   # Create a volume to store the certificates, even if the container is recreated
   traefik-certificates:

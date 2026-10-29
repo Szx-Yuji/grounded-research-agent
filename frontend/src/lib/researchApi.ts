@@ -1,14 +1,6 @@
 import { z } from "zod"
-
-const evidenceSchema = z.object({
-  source_id: z.string(),
-  kind: z.enum(["knowledge", "web"]),
-  content: z.string(),
-  title: z.string(),
-  url: z.string().nullable().optional(),
-  document_id: z.string().nullable().optional(),
-  chunk_index: z.number().nullable().optional(),
-})
+import { apiErrorMessage } from "@/lib/apiErrors"
+import { evidenceSchema } from "@/lib/evidence"
 
 const researchRunSchema = z.object({
   id: z.string(),
@@ -79,11 +71,8 @@ async function request(path: string, options: RequestInit = {}) {
       window.location.assign("/login")
     }
     const payload: unknown = await response.json().catch(() => null)
-    const detail = z.object({ detail: z.string() }).safeParse(payload)
     throw new ResearchApiError(
-      detail.success
-        ? detail.data.detail
-        : `Request failed (${response.status})`,
+      apiErrorMessage(payload, `Request failed (${response.status})`),
       response.status,
     )
   }

@@ -16,6 +16,7 @@ import {
 import { type FormEvent, useEffect, useRef, useState } from "react"
 
 import { KnowledgeBasesService } from "@/client"
+import { ExecutionDetails } from "@/components/Chat/ExecutionDetails"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -79,7 +80,7 @@ function MessageSources({ sources }: { sources: AssistantSource[] }) {
   return (
     <details className="mt-4 border-t pt-3 text-xs">
       <summary className="cursor-pointer font-medium text-primary">
-        查看 {sources.length} 条来源
+        查看 {sources.length} 条查阅来源
       </summary>
       <div className="mt-3 space-y-3">
         {sources.map((source, index) => {
@@ -98,6 +99,15 @@ function MessageSources({ sources }: { sources: AssistantSource[] }) {
                   ? ` · 片段 ${source.chunk_index + 1}`
                   : ""}
               </p>
+              {source.retrieval ? (
+                <p className="mt-2 text-muted-foreground">
+                  检索方式 {source.retrieval.method} · 排名{" "}
+                  {source.retrieval.rank}
+                  {source.retrieval.warnings.length
+                    ? " · 检索有降级或兼容提示"
+                    : ""}
+                </p>
+              ) : null}
               <p className="mt-2 whitespace-pre-wrap break-words leading-6 text-muted-foreground">
                 {source.content}
               </p>
@@ -138,6 +148,9 @@ function ChatPage() {
   } | null>(null)
   const [lastTurn, setLastTurn] = useState<AssistantTurn | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const sendIntent = useRef<{ id: string; text: string; key: string } | null>(
+    null,
+  )
 
   const selectConversation = (id?: string) => {
     setContent("")
@@ -250,13 +263,23 @@ function ChatPage() {
         void navigate({ search: { conversation: id }, replace: true })
       }
       try {
-        return await assistantApi.send(id, input.text)
+        if (
+          sendIntent.current?.id !== id ||
+          sendIntent.current.text !== input.text
+        )
+          sendIntent.current = {
+            id,
+            text: input.text,
+            key: crypto.randomUUID(),
+          }
+        return await assistantApi.send(id, input.text, sendIntent.current.key)
       } catch (error) {
         setSendError({ conversationId: id, message: describeError(error) })
         throw error
       }
     },
     onSuccess: (turn) => {
+      sendIntent.current = null
       setContent("")
       setSendError(null)
       setLastTurn(turn)
@@ -486,7 +509,11 @@ function ChatPage() {
                       <Checkbox
                         id={`chat-kb-${base.id}`}
                         checked={settings.knowledge_base_ids.includes(base.id)}
-                        disabled={configDisabled}
+                        disabled={
+                          configDisabled ||
+                          (settings.knowledge_base_ids.length >= 5 &&
+                            !settings.knowledge_base_ids.includes(base.id))
+                        }
                         onCheckedChange={(checked) =>
                           changeSettings({
                             knowledge_base_ids:
@@ -507,7 +534,7 @@ function ChatPage() {
               <p className="text-xs leading-5 text-muted-foreground">
                 {running
                   ? "回复完成后可以更改资料范围。"
-                  : "不选知识库也可以普通聊天。设置对下一条消息生效。"}
+                  : "不选知识库也可以普通聊天。最多选择5个，设置对下一条消息生效。"}
               </p>
             </div>
           </details>
@@ -568,6 +595,9 @@ function ChatPage() {
                   </p>
                   {message.role === "assistant" ? (
                     <MessageSources sources={message.sources} />
+                  ) : null}
+                  {message.role === "user" && message.turn_id ? (
+                    <ExecutionDetails turnId={message.turn_id} />
                   ) : null}
                 </div>
               </article>
@@ -649,7 +679,7 @@ function ChatPage() {
             onChange={(event) => setContent(event.target.value)}
             placeholder="发送消息，或继续追问…"
             rows={2}
-            maxLength={10000}
+            maxLength={8000}
             disabled={sendMutation.isPending}
             className="max-h-48 min-h-16 w-full resize-y bg-transparent px-1 py-1 text-sm leading-6 outline-none placeholder:text-muted-foreground/70"
           />

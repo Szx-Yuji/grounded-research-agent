@@ -5,7 +5,7 @@ is accepted, and only users created by these fixtures are removed.
 """
 
 import os
-import time
+import threading
 import uuid
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -42,7 +42,6 @@ from app.core.db import engine  # noqa: E402
 from app.core.security import get_password_hash  # noqa: E402
 from app.main import app as fastapi_app  # noqa: E402
 from app.models import KnowledgeBase, User  # noqa: E402
-from app.services import research_runs  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -67,20 +66,25 @@ def fake_external_engine(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def client() -> Iterator[TestClient]:
-    with TestClient(fastapi_app) as value:
-        yield value
-        with research_runs._lock:
-            for signal in research_runs._active.values():
-                signal.set()
-        deadline = time.monotonic() + 5
-        while time.monotonic() < deadline:
-            with research_runs._lock:
-                if not research_runs._active:
-                    break
-            time.sleep(0.01)
-        with research_runs._lock:
-            assert not research_runs._active, "Test left a research worker active"
+def client(monkeypatch) -> Iterator[TestClient]:
+    from app.worker import run_worker
+
+    monkeypatch.setattr(settings, "WORKER_POLL_SECONDS", 0.01)
+    stop = threading.Event()
+    worker = threading.Thread(
+        target=run_worker,
+        args=(stop,),
+        kwargs={"worker_id": "research-test-worker", "kinds": ["research", "document"]},
+        daemon=True,
+    )
+    worker.start()
+    try:
+        with TestClient(fastapi_app) as value:
+            yield value
+    finally:
+        stop.set()
+        worker.join(timeout=8)
+        assert not worker.is_alive(), "Independent test worker did not stop"
 
 
 @pytest.fixture

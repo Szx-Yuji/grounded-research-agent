@@ -8,7 +8,6 @@ import logging
 import threading
 import time
 import uuid
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any
 
 from fastapi import HTTPException
@@ -24,15 +23,13 @@ from app.models import (
     ResearchRunPublic,
     get_datetime_utc,
 )
+from app.research.errors import ResearchExecutionError
+from app.services import durable_jobs
 from app.services.knowledge_retrieval import validate_knowledge_access
 
 logger = logging.getLogger(__name__)
 TERMINAL = {"succeeded", "failed", "cancelled"}
 RESTART_MESSAGE = "Research was interrupted by a server restart. Start a new run."
-_lock = threading.RLock()
-_active: dict[uuid.UUID, threading.Event] = {}
-_executor: ThreadPoolExecutor | None = None
-_pending_finishes: dict[uuid.UUID, tuple[str, dict[str, Any] | None, str | None]] = {}
 
 
 def owned_run(session: Session, run_id: uuid.UUID, owner_id: uuid.UUID) -> ResearchRun:
@@ -58,91 +55,71 @@ def _event(
 
 
 def recover_interrupted_runs() -> None:
-    """Only valid with the documented one-ASGI-worker deployment."""
-    with Session(engine) as session:
-        interrupted = session.exec(
-            select(ResearchRun).where(ResearchRun.status.in_(["queued", "running"]))
-        ).all()
-        for run in interrupted:
-            run.status = "failed"
-            run.error_message = RESTART_MESSAGE
-            run.updated_at = get_datetime_utc()
-            session.add(run)
-            _event(session, run, "error", {"message": RESTART_MESSAGE})
-        session.commit()
+    """Only expired claimed jobs may be interrupted; queued intents survive."""
+    durable_jobs.expire_abandoned()
 
 
 def shutdown_research() -> None:
-    global _executor
-    with _lock:
-        for signal in _active.values():
-            signal.set()
-        pool, _executor = _executor, None
-    if pool is not None:
-        pool.shutdown(wait=False, cancel_futures=True)
+    """API shutdown does not own independent worker execution."""
 
 
-def start_run(owner_id: uuid.UUID, request: ResearchCreate) -> ResearchRunPublic:
-    global _executor
-    reconcile_finishes()
+def start_run(
+    owner_id: uuid.UUID, request: ResearchCreate, idempotency_key: str | None = None
+) -> ResearchRunPublic:
+    key = durable_jobs.validate_key(idempotency_key)
+    payload = request.model_dump(mode="json")
+    digest = durable_jobs.request_hash(payload)
     kb_ids = list(dict.fromkeys(request.knowledge_base_ids))
     if not request.use_web and not kb_ids:
-        raise HTTPException(
-            status_code=422, detail="Select a knowledge base or enable web search"
-        )
+        raise HTTPException(422, "Select a knowledge base or enable web search")
     with Session(engine) as session:
-        validate_knowledge_access(session, owner_id, kb_ids)
-    missing = []
-    if not settings.DEEPSEEK_API_KEY:
-        missing.append("DEEPSEEK_API_KEY")
-    if request.use_web and not settings.TAVILY_API_KEY:
-        missing.append("TAVILY_API_KEY")
-    if kb_ids and not settings.ZHIPUAI_API_KEY:
-        missing.append("ZHIPUAI_API_KEY")
-    if missing:
-        raise HTTPException(
-            status_code=503,
-            detail=f"Configure {', '.join(missing)} in .env before starting research",
+        previous = durable_jobs.existing_intent(
+            session, owner_id, "research", "", key, digest
         )
-    with _lock:
-        if len(_active) + len(_pending_finishes) >= settings.RESEARCH_MAX_WORKERS:
+        if previous is not None:
+            run = session.get(ResearchRun, previous.target_id)
+            if run is None:
+                raise HTTPException(410, "The original research run has been deleted")
+            return ResearchRunPublic.model_validate(run)
+        durable_jobs.enforce_capacity(session, owner_id)
+        validate_knowledge_access(session, owner_id, kb_ids)
+        missing = []
+        if not settings.DEEPSEEK_API_KEY:
+            missing.append("DEEPSEEK_API_KEY")
+        if request.use_web and not settings.TAVILY_API_KEY:
+            missing.append("TAVILY_API_KEY")
+        if kb_ids and not settings.ZHIPUAI_API_KEY:
+            missing.append("ZHIPUAI_API_KEY")
+        if missing:
             raise HTTPException(
-                status_code=429, detail="Research workers are busy. Try again shortly."
+                503, "Configure " + ", ".join(missing) + " before research"
             )
-        with Session(engine) as session:
-            run = ResearchRun(
-                owner_id=owner_id,
-                query=request.query,
-                knowledge_base_ids=[str(value) for value in kb_ids],
-                use_web=request.use_web,
-            )
-            session.add(run)
-            session.commit()
-            session.refresh(run)
-            result = ResearchRunPublic.model_validate(run)
-        cancel = threading.Event()
-        _active[run.id] = cancel
-        if _executor is None:
-            _executor = ThreadPoolExecutor(
-                max_workers=settings.RESEARCH_MAX_WORKERS, thread_name_prefix="research"
-            )
-        try:
-            _executor.submit(_execute_run, run.id, cancel)
-        except Exception:
-            _active.pop(run.id, None)
-            _finish(
-                run.id,
-                "failed",
-                error="The research worker could not start. Try again.",
-            )
-            raise HTTPException(
-                status_code=503, detail="Research worker unavailable"
-            ) from None
-    return result
+        run = ResearchRun(
+            owner_id=owner_id,
+            query=request.query,
+            knowledge_base_ids=[str(value) for value in kb_ids],
+            use_web=request.use_web,
+        )
+        session.add(run)
+        session.flush()
+        durable_jobs.enqueue(
+            session,
+            owner_id=owner_id,
+            kind="research",
+            target_id=run.id,
+            payload=payload,
+            key=key,
+            scope="",
+            digest=digest,
+        )
+        session.commit()
+        session.refresh(run)
+        return ResearchRunPublic.model_validate(run)
 
 
 def _append_event(run_id: uuid.UUID, event: str, data: dict[str, Any]) -> None:
     with Session(engine) as session:
+        durable_jobs.assert_lease(session)
         run = session.exec(
             select(ResearchRun).where(ResearchRun.id == run_id).with_for_update()
         ).first()
@@ -162,11 +139,17 @@ def _persist_finish(
     error: str | None = None,
 ) -> None:
     with Session(engine) as session:
+        job = durable_jobs.assert_lease(session, permit_cancelled=True)
         run = session.exec(
             select(ResearchRun).where(ResearchRun.id == run_id).with_for_update()
         ).first()
         if run is None or run.status in TERMINAL:
+            if run is not None and run.status == "cancelled":
+                durable_jobs.finish_in_transaction(session, "cancelled")
+                session.commit()
             return
+        if job.cancel_requested_at:
+            status, result, error = "cancelled", None, None
         run.status = status
         run.error_message = error
         run.updated_at = get_datetime_utc()
@@ -185,6 +168,7 @@ def _persist_finish(
         _event(
             session, run, kind, {"message": error} if kind == "error" else _payload(run)
         )
+        durable_jobs.finish_in_transaction(session, status, error)
         session.commit()
 
 
@@ -195,37 +179,32 @@ def _finish(
     result: dict[str, Any] | None = None,
     error: str | None = None,
 ) -> None:
-    # Retry only persistence, never paid model execution. Keep the outcome in
-    # memory for the next API/stream poll if the database is temporarily down.
     for attempt in range(3):
         try:
             _persist_finish(run_id, status, result=result, error=error)
-            with _lock:
-                _pending_finishes.pop(run_id, None)
+            return
+        except durable_jobs.LeaseLost:
             return
         except SQLAlchemyError:
             if attempt < 2:
                 time.sleep(0.1 * (2**attempt))
-    logger.error("Research run %s is waiting for terminal-state persistence", run_id)
-    with _lock:
-        _pending_finishes[run_id] = (status, result, error)
+    logger.error(
+        "Research run %s could not persist its outcome; expired attempt will not be replayed",
+        run_id,
+    )
 
 
 def reconcile_finishes() -> None:
-    with _lock:
-        pending = list(_pending_finishes.items())
-    for run_id, (status, result, error) in pending:
-        try:
-            _persist_finish(run_id, status, result=result, error=error)
-        except SQLAlchemyError:
-            continue
-        with _lock:
-            _pending_finishes.pop(run_id, None)
+    """Recovery belongs to worker lease maintenance, never API reads."""
 
 
 def _execute_run(run_id: uuid.UUID, cancel: threading.Event) -> None:
     from app.research.errors import ResearchCancelled
 
+    if durable_jobs.current_claim() is None:
+        raise durable_jobs.LeaseLost(
+            "Research execution requires a claimed durable job"
+        )
     started = time.monotonic()
     buffers: dict[str, str] = {}
     last_flush = time.monotonic()
@@ -234,6 +213,7 @@ def _execute_run(run_id: uuid.UUID, cancel: threading.Event) -> None:
         return (
             cancel.is_set()
             or time.monotonic() - started > settings.RESEARCH_TIMEOUT_SECONDS
+            or durable_jobs.should_stop(durable_jobs.current_claim())
         )
 
     def flush() -> None:
@@ -262,6 +242,7 @@ def _execute_run(run_id: uuid.UUID, cancel: threading.Event) -> None:
         from app.research import execute_research
 
         with Session(engine) as session:
+            job = durable_jobs.assert_lease(session)
             run = session.exec(
                 select(ResearchRun).where(ResearchRun.id == run_id).with_for_update()
             ).first()
@@ -272,10 +253,10 @@ def _execute_run(run_id: uuid.UUID, cancel: threading.Event) -> None:
             session.add(run)
             session.commit()
             query, owner, kb_ids, use_web = (
-                run.query,
+                job.payload["query"],
                 run.owner_id,
-                run.knowledge_base_ids,
-                run.use_web,
+                job.payload["knowledge_base_ids"],
+                job.payload["use_web"],
             )
         result = execute_research(
             query,
@@ -298,33 +279,22 @@ def _execute_run(run_id: uuid.UUID, cancel: threading.Event) -> None:
                 "failed",
                 error="Research timed out. Narrow the question and try again.",
             )
-    except Exception:
-        logger.exception("Research run %s failed", run_id)
+    except Exception as exc:
+        logger.error("Research run %s failed (%s)", run_id, type(exc).__name__)
         _finish(
             run_id,
             "failed",
-            error="Research failed. Check model/search configuration or try again.",
+            error=str(exc)
+            if isinstance(exc, ResearchExecutionError)
+            else "Research failed. Check model/search configuration or try again.",
         )
-    finally:
-        with _lock:
-            _active.pop(run_id, None)
 
 
 def cancel_run(
     session: Session, run_id: uuid.UUID, owner_id: uuid.UUID
 ) -> ResearchRunPublic:
     run = owned_run(session, run_id, owner_id)
-    # The row lock serializes cancellation with worker completion and event writes.
-    session.refresh(run, with_for_update=True)
-    if run.status not in TERMINAL:
-        run.status = "cancelled"
-        run.updated_at = get_datetime_utc()
-        session.add(run)
-        _event(session, run, "cancelled", _payload(run))
-        session.commit()
-        session.refresh(run)
-        with _lock:
-            signal = _active.get(run_id)
-            if signal:
-                signal.set()
+    durable_jobs.cancel_target(session, "research", run.id)
+    session.commit()
+    session.refresh(run)
     return ResearchRunPublic.model_validate(run)

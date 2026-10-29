@@ -1,10 +1,12 @@
 from concurrent.futures import ThreadPoolExecutor
+from contextvars import copy_context
 from datetime import UTC, datetime
 
 from app.research import config
 from app.research.events import check_cancelled, emit_log
 from app.research.models import ResearchState
 from app.research.tools.search import SearchError, search_web
+from app.runtime.context import BudgetExceeded
 
 
 def _log(agent: str, action: str, detail) -> dict:
@@ -39,12 +41,17 @@ def researcher_node(state: ResearchState) -> dict:
     if pending:
         workers = max(1, min(config.SEARCH_CONCURRENCY, len(pending)))
         with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = {task: pool.submit(search_web, task) for task in pending}
+            futures = {
+                task: pool.submit(copy_context().run, search_web, task)
+                for task in pending
+            }
 
             for task in pending:
                 check_cancelled()
                 try:
                     results = futures[task].result()
+                except BudgetExceeded:
+                    raise
                 except SearchError:
                     failures.append(task)
                     unanswered.append(task)

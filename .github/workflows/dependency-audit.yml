@@ -63,7 +63,10 @@ jobs:
       - name: Install the frozen workspace with scripts disabled
         run: bun --no-env-file install --frozen-lockfile --ignore-scripts
       - name: Audit all workspace dependencies
-        run: bun --no-env-file audit --json > "$RUNNER_TEMP/javascript-audit.json"
+        run: |
+          audit_status=0
+          bun --no-env-file audit --json > "$RUNNER_TEMP/javascript-audit.json" || audit_status=$?
+          python3 scripts/check-js-audit.py "$RUNNER_TEMP/javascript-audit.json" "$audit_status"
       - name: Store the raw JavaScript report
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

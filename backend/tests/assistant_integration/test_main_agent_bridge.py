@@ -154,8 +154,12 @@ def test_real_main_agent_delegates_rag_then_continues_same_conversation(
         turn_id = created.json()["id"]
         deadline = time.monotonic() + 5
         while time.monotonic() < deadline:
-            with assistant_conversations._lock:
-                if uuid.UUID(turn_id) not in assistant_conversations._active:
+            with Session(engine) as session:
+                stored = session.get(AssistantTurn, uuid.UUID(turn_id))
+                if (
+                    stored is not None
+                    and stored.status in assistant_conversations.TERMINAL
+                ):
                     break
             time.sleep(0.01)
         turn = client.get(

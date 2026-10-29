@@ -1,0 +1,456 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-29T14:18:06.073403+00:00",
+  "mode": "offline_engineering",
+  "database": "loopback:55439/grounded_research_test",
+  "provider_mode": "deterministic substitutes; external Python sockets blocked",
+  "crash_injection": "real child process os._exit(17), not an actual SIGKILL signal",
+  "limitations": [
+    "No paid provider, answer-quality, deployment-capacity or exactly-once billing validation.",
+    "Queued durability and unknown-outcome fencing are tested; full graph checkpoint resume is not implemented.",
+    "All existing cases are retained; scenario groups are an index, not a production success-rate estimate."
+  ],
+  "setup_status": "passed",
+  "suites": [
+    {
+      "name": "runtime",
+      "exit_code": 0,
+      "case_count": 13,
+      "status": "passed"
+    },
+    {
+      "name": "durable_integration",
+      "exit_code": 0,
+      "case_count": 20,
+      "status": "passed"
+    },
+    {
+      "name": "runtime_integration",
+      "exit_code": 0,
+      "case_count": 3,
+      "status": "passed"
+    }
+  ],
+  "cases": [
+    {
+      "suite": "runtime",
+      "name": "test_exact_reviewed_advisory_is_only_allowed_exception",
+      "class": "tests.runtime.test_audit_policy",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_error_or_unknown_advisory_reports_fail_closed[report0-1]",
+      "class": "tests.runtime.test_audit_policy",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_error_or_unknown_advisory_reports_fail_closed[report1-1]",
+      "class": "tests.runtime.test_audit_policy",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_error_or_unknown_advisory_reports_fail_closed[report2-1]",
+      "class": "tests.runtime.test_audit_policy",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_error_or_unknown_advisory_reports_fail_closed[report3-2]",
+      "class": "tests.runtime.test_audit_policy",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_nested_calls_share_atomic_budget_and_output_reservations",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_parallel_searches_cannot_overrun_shared_budget",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.001
+    },
+    {
+      "suite": "runtime",
+      "name": "test_stream_captures_usage_ttft_and_no_prompt_text",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_partial_stream_and_timeout_outcomes_stay_unknown_without_retry",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_embedding_actual_batch_requests_are_counted_and_bounded",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_deadline_and_unpersisted_intents_block_dispatch",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_missing_usage_is_explicitly_unknown_and_context_restored",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime",
+      "name": "test_unknown_call_cannot_be_replayed_inside_same_agent_turn",
+      "class": "tests.runtime.test_gateway",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_api_enqueues_atomically_without_execution_and_survives_api_restart",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.06
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_idempotent_intent_replay_and_payload_mismatch",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.031
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_concurrent_idempotency_creates_one_intent_and_message",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.019
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_skip_locked_claim_does_not_wait_for_another_worker",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.022
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_fenced_execution_persists_answer_and_final_event_once",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.021
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_expired_running_attempt_is_unknown_and_never_requeued",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.018
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_cancelled_queue_is_not_claimed_and_new_message_is_allowed",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.019
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_cross_process_cancel_fences_late_results",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.018
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_heartbeat_renews_same_attempt_and_lease_token",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.013
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_research_and_assistant_share_durable_queue",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.016
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_real_worker_subprocess_executes_queued_intent",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 1.044
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_process_crash_after_claim_is_interrupted_without_reexecution",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.301
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_deleted_conversation_removes_job_payload_and_call_rows",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.027
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_replaced_chunk_generation_invalidates_notes_and_summary",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.01
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_document_intent_retry_reuses_row_and_changes_lease_token",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.015
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_cancelled_sse_keeps_compatible_terminal_payload",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.017
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_lease_naturally_expires_inside_an_existing_transaction",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.222
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_embedded_worker_process_guard_rejects_second_and_releases_after_exit",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.004
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_embedded_guard_detects_unlock_on_its_original_connection",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.003
+    },
+    {
+      "suite": "durable_integration",
+      "name": "test_worker_exits_on_guard_loss_without_claiming_more_work",
+      "class": "tests.durable_integration.test_jobs",
+      "status": "passed",
+      "seconds": 0.0
+    },
+    {
+      "suite": "runtime_integration",
+      "name": "test_real_gateway_ledger_api_ownership_and_request_correlation",
+      "class": "tests.runtime_integration.test_ledger",
+      "status": "passed",
+      "seconds": 0.08
+    },
+    {
+      "suite": "runtime_integration",
+      "name": "test_stale_lease_blocks_provider_before_dispatch_and_started_becomes_unknown",
+      "class": "tests.runtime_integration.test_ledger",
+      "status": "passed",
+      "seconds": 0.021
+    },
+    {
+      "suite": "runtime_integration",
+      "name": "test_readonly_integration_rejects_cross_tenant_before_embedding",
+      "class": "tests.runtime_integration.test_ledger",
+      "status": "passed",
+      "seconds": 0.012
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "queued_api_reopen",
+      "description": "An enqueued intent survives reopening the API without dispatching a provider.",
+      "status": "passed",
+      "required_tests": [
+        "test_api_enqueues_atomically_without_execution_and_survives_api_restart"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "durable_integration",
+          "name": "test_api_enqueues_atomically_without_execution_and_survives_api_restart",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 0.06
+        }
+      ]
+    },
+    {
+      "id": "two_worker_claims",
+      "description": "A competing claim skips a locked job and claims another queued job.",
+      "status": "passed",
+      "required_tests": [
+        "test_skip_locked_claim_does_not_wait_for_another_worker"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "durable_integration",
+          "name": "test_skip_locked_claim_does_not_wait_for_another_worker",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 0.022
+        }
+      ]
+    },
+    {
+      "id": "idempotent_intents",
+      "description": "Identical retries reuse one intent; conflicting payloads are rejected, including concurrent retries.",
+      "status": "passed",
+      "required_tests": [
+        "test_idempotent_intent_replay_and_payload_mismatch",
+        "test_concurrent_idempotency_creates_one_intent_and_message"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "durable_integration",
+          "name": "test_idempotent_intent_replay_and_payload_mismatch",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 0.031
+        },
+        {
+          "suite": "durable_integration",
+          "name": "test_concurrent_idempotency_creates_one_intent_and_message",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 0.019
+        }
+      ]
+    },
+    {
+      "id": "shared_delegate_budget",
+      "description": "Nested delegates and concurrent search threads share atomic call/output-token reservations.",
+      "status": "passed",
+      "required_tests": [
+        "test_nested_calls_share_atomic_budget_and_output_reservations",
+        "test_parallel_searches_cannot_overrun_shared_budget"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "runtime",
+          "name": "test_nested_calls_share_atomic_budget_and_output_reservations",
+          "class": "tests.runtime.test_gateway",
+          "status": "passed",
+          "seconds": 0.0
+        },
+        {
+          "suite": "runtime",
+          "name": "test_parallel_searches_cannot_overrun_shared_budget",
+          "class": "tests.runtime.test_gateway",
+          "status": "passed",
+          "seconds": 0.001
+        }
+      ]
+    },
+    {
+      "id": "abrupt_worker_exit_unknown_no_replay",
+      "description": "A real worker child exits via os._exit(17) after claim; an expired attempt is interrupted and is not reclaimed. A persisted in-flight call is exposed as unknown.",
+      "status": "passed",
+      "required_tests": [
+        "test_process_crash_after_claim_is_interrupted_without_reexecution",
+        "test_stale_lease_blocks_provider_before_dispatch_and_started_becomes_unknown"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "durable_integration",
+          "name": "test_process_crash_after_claim_is_interrupted_without_reexecution",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 0.301
+        },
+        {
+          "suite": "runtime_integration",
+          "name": "test_stale_lease_blocks_provider_before_dispatch_and_started_becomes_unknown",
+          "class": "tests.runtime_integration.test_ledger",
+          "status": "passed",
+          "seconds": 0.021
+        }
+      ]
+    },
+    {
+      "id": "independent_worker_process",
+      "description": "A separate Python process claims a real PG intent, executes a deterministic engine and persists its result.",
+      "status": "passed",
+      "required_tests": [
+        "test_real_worker_subprocess_executes_queued_intent"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "durable_integration",
+          "name": "test_real_worker_subprocess_executes_queued_intent",
+          "class": "tests.durable_integration.test_jobs",
+          "status": "passed",
+          "seconds": 1.044
+        }
+      ]
+    },
+    {
+      "id": "resource_permissions",
+      "description": "Real JWT/API ownership rejects another user's execution and knowledge base before embedding dispatch.",
+      "status": "passed",
+      "required_tests": [
+        "test_real_gateway_ledger_api_ownership_and_request_correlation",
+        "test_readonly_integration_rejects_cross_tenant_before_embedding"
+      ],
+      "missing_tests": [],
+      "evidence": [
+        {
+          "suite": "runtime_integration",
+          "name": "test_real_gateway_ledger_api_ownership_and_request_correlation",
+          "class": "tests.runtime_integration.test_ledger",
+          "status": "passed",
+          "seconds": 0.08
+        },
+        {
+          "suite": "runtime_integration",
+          "name": "test_readonly_integration_rejects_cross_tenant_before_embedding",
+          "class": "tests.runtime_integration.test_ledger",
+          "status": "passed",
+          "seconds": 0.012
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "passed": 36,
+    "failed": 0,
+    "error": 0,
+    "skipped": 0
+  },
+  "status": "passed",
+  "seconds": 5.285
+}

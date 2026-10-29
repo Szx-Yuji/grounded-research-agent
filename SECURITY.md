@@ -65,3 +65,28 @@ configuration, or an environment override such as `CHROMA_API_IMPL`. Local
 configuration and persisted files must remain trusted. Recheck upstream fixes
 and this deployment boundary at the review date or whenever that boundary
 changes.
+
+## JavaScript advisory review, 2026-10-29
+
+The Seroval advisories discovered during this iteration are fixed by the exact
+workspace override `seroval=1.6.11`. Python `dnspython` and `langgraph-sdk` are
+also constrained to their patched versions. Frozen installs and all regression
+suites must pass after these lockfile changes.
+
+The native Bun report still lists one low-severity advisory for `deepmerge@4.3.1`,
+[GHSA-gcqx-w48m-w2h4](https://github.com/advisories/GHSA-gcqx-w48m-w2h4).
+The official advisory and npm registry had no patched release on 2026-10-29.
+The reviewed path is `packages/react-email` → `@react-email/render` →
+`html-to-text` → `deepmerge`. Its `compile()` merges converter options and
+selector configurations supplied by the local template code; it does not merge
+an untrusted JSON options object from the application API. Email templates are
+locally authored. The Python backend serves the already exported templates,
+and the browser build does not expose this options-merging API.
+
+This is an exact, temporary reachability exception, not a claim of zero
+JavaScript vulnerabilities. `scripts/check-js-audit.py` permits only this
+package, advisory URL and low severity, retains the raw native report, rejects
+unrecognized/error reports and expires the exception after **2026-11-29**.
+It is invalid before accepting converter options, selector objects, formatter
+configuration or arbitrary template code from an untrusted source. Recheck the
+upstream fix before the review deadline or any change to that boundary.

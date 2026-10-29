@@ -1,66 +1,112 @@
-# 从一轮连续对话开始理解项目
+# 怎样教、怎样学这个项目
 
-目标是能解释、修改和排错。现有代码不用重新手敲，教学按“假设从空项目实现，先需要什么”的顺序展开；每次一个小目标，遇到没讲过的项目函数，先进入定义讲清，再返回主线。
+目标是能解释、修改和排错，逐步具备独立完成类似应用的能力。现有代码不用重新手敲；教学按“假设从空项目实现，先需要什么”的依赖顺序展开，每次只解决一个小目标。
 
-## 1. HTTP：发送一句话发生什么
+## 每一步的讲解要求
 
-入口：`backend/app/api/routes/assistant.py`。
+1. 先说明当前要解决什么问题、要看哪个文件/函数，以及为什么现在需要它。
+2. 对新函数说明是谁提供的：Python 标准库、第三方库或本项目自定义。首次出现的装饰器、类型、类和框架调用也如此。
+3. 逐个解释参数的值从哪来、类型是什么、函数实际做什么、返回什么、谁接收返回值。区分“创建对象”和“发出网络请求”。
+4. 遇到没讲过的自定义函数，进入定义，按依赖解释清楚再返回调用处；不要用一个未解释的函数带过另一个函数。第三方 API 讲清本次用到的契约，不展开整个库的内部源码。
+5. 区分模型提出的工具调用、服务端实际执行、工具结果返回模型、最终消息落库；也区分数据库状态、Python 内存和浏览器临时状态。
+6. 一次给一小段可理解的代码或观察任务，留出理解和提问空间。用户说“下一步”再沿主线推进，避免一次铺完整仓库。
+7. 对已有代码通过阅读、断点、改一处小参数或输出预测理解，不要求重打旧代码。新练习需要实际修改时，明确文件、位置、预期行为和验证方式。
+8. 基础不足就在当前调用处补 Python、SQL、HTTP、异步/线程知识，再回业务主线。测试框架可以集中讲解，不让写测试长期替代业务和 Agent 教学。
 
-在 `/chat` 创建一个会话并发送问题。对照OpenAPI，确认会话ID、来源配置、Token、用户输入及返回的轮次。分清“消息已经保存”“任务已经完成”“前端已经显示回答”三个时间点。
+## 学习顺序
 
-每个新调用先说明来源：项目函数、Python标准库、第三方框架分别是什么；再讲参数从哪里来、返回值交给谁、谁实际执行它。
+### 1. HTTP 和身份：发送一句话
 
-## 2. Service：身份、互斥与历史
+入口 `backend/app/api/routes/assistant.py`。先创建会话，再发送一条用户消息。画出 JWT、conversation_id、content 和可选 Idempotency-Key 从前端到接口的路径。
 
-入口：`backend/app/services/assistant_conversations.py`。
+进入 `CurrentUser` 的定义，解释 FastAPI 依赖如何把请求 Token 变成当前用户；再说明 `SessionDep`、Pydantic 请求模型和项目自定义 service 各做什么。返回 `202` 只说明入队，不表示答案已生成。
 
-追踪 `CurrentUser` 如何限定会话和轮次。看发送消息如何检查同一会话已有活动轮次，用户消息和轮次如何保存。再看worker如何读取成功历史与摘要，为什么失败/取消输入保留在界面里却不能污染后续模型历史。
+观察点：参数是谁传的、哪个函数实际被框架调用、轮次 ID 如何回到前端。
 
-先看两轮短对话，不急着展开摘要。确认第二轮确实取得第一轮的用户问题和助手回答，而不是仅把上一个回答留在React内存。
+### 2. 事务与队列：为什么先保存意图
 
-## 3. Execute：主 Agent 怎样调度子 Agent
+入口 `services/assistant_conversations.py:start_turn` 和 `services/durable_jobs.py`。先讲单条正常请求，再讲同会话互斥和幂等重发。
 
-入口：`backend/app/assistant/` 的 `execute_chat`。
+进入 `existing_intent`、`enforce_capacity`、`enqueue`，解释锁、请求摘要、Session.add/flush/commit 的差别。把“用户消息、业务轮次、执行意图同事务”连到崩溃窗口，不能只背事务定义。
 
-区分用户消息、模型返回的工具调用意图、程序实际执行的函数，以及工具结果返回模型这几步。先看不需要工具的回答，再看一次RAG调用，最后看研究调用。
+观察点：没有 worker 时请求保持 queued，相同键返回同一个意图，同键不同输入为何409。
 
-遇到工具定义、模型客户端、参数校验或事件发送，按依赖进入定义再返回。工具Schema说明模型能传哪些参数；身份和可用知识库不是让模型自己编造的参数。
+### 3. 独立 worker：谁真正开始执行
 
-## 4. RAG 和研究：工具内部还做什么
+入口 `app/worker.py:run_worker`，依赖 `claim_next`、`execute_claim`、`heartbeat`、`assert_lease`。
 
-入口：`services/knowledge_retrieval.py` 与 `research/`。
+先看一个线程执行一个任务，再解释线程池与 ContextVar。`SKIP LOCKED` 是 PostgreSQL 语义；lease_token 是项目定义的执行身份。用两个 worker 的时间线说明旧结果为什么不能覆盖已失效执行。
 
-RAG路径先看权限、文档ready状态、Chroma结果到Evidence的转换。研究路径再按Planner、Researcher、条件Refiner、Analyst、Writer展开。区分主Agent的工具循环与研究子流程固定图；区分并发网页搜索与LangGraph并行节点。
+观察点：queued 跨重启保留；running 过期变 interrupted，当前不会从中断节点继续，也不自动重放不确定收费请求。
 
-用一个私有片段和一个网页结果对照来源字段，确认私有材料不作为任意公开URL展示，也不在未经约束时进入网页搜索查询或公共缓存。
+再用文档索引走同一条队列：进入上传/重试接口和 enqueue_document，看返回上传成功与索引 ready 的区别，最后进入 processor 的分块发布，解释为什么文档状态、分块和任务成功必须在有效 lease 下同事务提交。
 
-## 5. Memory：摘要怎样与近期历史衔接
+### 4. 主 Agent：意图怎样变成函数执行
 
-回到 `assistant_conversations.py` 和主Agent入口。
+入口 `assistant/engine.py:execute_chat`。先用普通回答，再用一次 ask_knowledge，最后用 research_topic。
 
-先读触发摘要的条件，再看摘要覆盖范围和近期消息如何划分。解释摘要什么时候保存、失败轮次为什么排除、重复摘要如何避免。用一次长历史测试观察字段变化，不能只因数据库有 `summary` 字段就声称拥有可靠长期记忆。
+依次看工具 schema、模型客户端、tool_calls、Pydantic 参数校验、实际 `_call_tool`、工具返回消息。遇到 `load_skill` 进入 `assistant/skills.py`，区分发现元信息和读取正文。用户身份和知识库范围不由模型生成。
 
-## 6. DB 与 SSE：关页面之后为什么还能接着看
+观察点：模型只返回调用意图，Python 代码实际执行；工具失败是错误信息，不是假成功证据。
 
-入口：轮次模型、事件写入和 `/{conversation_id}/turns/{turn_id}/events`。
+### 5. RAG：权限、索引与排名
 
-查看 `token`、`agent_update`、`complete` 等事件如何保存，前端怎样按 `after=N` 读取。区分数据库消息、SSE片段和worker内存。重读事件不重新运行模型，关闭连接不自动取消执行。
+入口 `services/knowledge_retrieval.py:retrieve_evidence`，递归进入 `validate_knowledge_access`、`retrieval_ranking.py` 的 tokenize/lexical_rank/reciprocal_rank_fusion，以及 `rag_service.py:create_retriever`。
 
-再看取消与成功落库的事务边界：取消后不能插入迟到助手消息，重启后未完成轮次标记失败。这里先理解执行生命周期，不承诺checkpoint续跑。
+先用两份短文档手算一个词法排名和一轮 RRF，再看 Chroma 候选如何映射为 Evidence。解释 embedding 客户端对象何时建立、何时真正请求模型；中文 bigram、BM25 和向量相似度各代表什么。
 
-## 7. React：历史和活动轮次如何合起来
+进入 `KnowledgeChunk` 和文档处理流程，理解 ready、内容哈希、索引版本和发布顺序。迁移改表不等于重建向量，旧文档兼容路径也不等于已有新词法索引。
 
-入口：`frontend/src/routes/` 下聊天页及其客户端、hooks和组件。
+观察点：越权在供应商调用前失败；向量故障的词法降级应可见；k 是最终结果上限，不等于每条召回路径的候选数。
 
-沿“会话列表 → 消息历史 → 发起新轮次 → SSE增量 → 完成后持久消息”追踪。重新进入页面时，先查询历史和活动轮次，再决定是否继续接收；不能依赖浏览器里上一轮的临时状态。
+### 6. 研究图：哪些节点固定、哪些地方有选择
 
-样式与图标简略带过，重点理解哪个按钮调用哪个HTTP接口、响应如何改变页面。
+入口 `research/graph.py`、各 agents 和 `tools/search.py`。按 Planner、Researcher、条件 Refiner、Analyst、Writer 展开，区分固定图条件路由与主 Agent 自主工具循环。
 
-## 四个小练习
+讲清 ThreadPoolExecutor、copy_context 和有限子问题搜索。将一个私有来源和一个网页来源并排看，解释私有材料不应成为公网链接，也不能随意进入公开搜索查询。
 
-1. **连续性。** 第一轮说明一个虚构项目名，第二轮追问“它的名称是什么”。使用模型替身检查第二轮真正收到前轮历史；再关闭页面并从消息接口重读。
-2. **失败隔离。** 让一轮工具执行失败，保留其用户消息；下一轮检查它没有进入成功历史。取消后重复验证，不把“数据库可见”误当“模型应该读取”。
-3. **工具边界。** 构造另一个用户的知识库ID，检查主Agent工具和HTTP接口都不能获得证据；用确定性Embedding和假模型完成一次真Chroma联动。
-4. **记忆与恢复。** 超过近期历史阈值后检查摘要和覆盖范围；再在活动轮次中重启后端，说明持久历史仍在、未完成执行为何必须重试。
+观察点：并发搜索不是无限并发 Agent；prompt 里的“不要泄露”不是完整出站安全机制。
 
-按小目标逐步验证，不要求一次做完。完整测试机制可集中讲解，不让测试教学长时间替代业务和Agent主线。之后再补Trace、评估集、工具失败分类、成本与取消边界；新增能力以实际实现和验证为准。
+### 7. 预算和 trace：实际请求之前发生什么
+
+入口 `runtime/context.py`、`runtime/gateway.py`。进入 execution_context、reserve、provider_call，再回实际 SDK 派发点。
+
+先追一条普通模型请求，再看流式 response、usage-only chunk 和 Embedding batch。解释主/子 Agent 如何共享计数、为什么先预留和落库、未知 usage 为什么不能填0。
+
+观察点：max_output_tokens 预留与供应商实际 Token 不同；网络超时不证明供应商没有执行，lease 不能做到恰好一次计费。
+
+### 8. 记忆：摘要、近期消息和子 Agent 笔记
+
+入口 `assistant/context.py` 和 `assistant_conversations.py:load_context`。先验证两轮短对话，再看超过预算的摘要。
+
+说明摘要覆盖哪些成功消息、最近窗口保留什么、delegate_notes 为什么让未在最终回答展开的方案 B 也可追问。进入来源有效性检查，解释删除文档后旧笔记和摘要如何失效。
+
+观察点：实际第二轮模型输入，而不只是网页保留了上一条回答；摘要仍有损，必要时回原资料检索。
+
+### 9. SSE 与 React：关闭页面为什么还能看
+
+入口事件查询和 frontend 的聊天 routes/hooks/client。追踪发送→返回turn→SSE增量→成功后重读持久消息。
+
+解释网络块与 SSE 帧的区别、缓冲、after 游标和去重。再看取消、刷新和迟到结果，区分关闭连接、取消执行和进程崩溃。
+
+观察点：重新读事件不调用模型，看到 token 不代表完整答案已经提交。
+
+### 10. 评估和扩展：自己做一次有意义的修改
+
+运行根目录 `evals/retrieval/run.py`，先理解数据、相关性标签、开发/留出拆分，再讲 Recall、MRR、nDCG 和无答案问题。
+
+改变一个分词或候选参数，先预测结果，再看消融与失败样例。向量 fixture 是可重复 toy cosine，不是现实 Embedding 效果。之后才做小预算真实供应商实验。
+
+MCP 最后从官方 Client 的 tools/list、tools/call 进入适配器，解释 stdio 协议、固定接口与 JWT 转发；不因用了 MCP 就跳过 HTTP 权限。
+
+## 每阶段的小练习
+
+- 画一轮请求的数据流，并对每个函数说出输入、输出、执行者和来源。
+- 关闭 worker 提交一条假任务，解释为什么 queued；再领取，不调用真实供应商。
+- 用同一个 Idempotency-Key 重发，然后换一个输入，预测消息数和状态码。
+- 让第一轮最终回答只展开 A，第二轮追问 B，检查模型输入确实有经过来源校验的子 Agent 笔记。
+- 故意使用别人的知识库 ID，证明没有发生 Embedding 请求。
+- 模拟向量不可用、预算耗尽、取消与 lease 失效，解释错误处于哪一层。
+- 对一个检索失败样例提出一个修改，跑留出集确认改善是否只发生在开发样本。
+
+所有练习逐个进行。真实供应商、领域质量、容量与恢复演练需要用户亲手完成并能解释；完成标准与面试演示见 [工程路线](engineering-roadmap.md)，故障步骤见 [运维说明](operations.md)。

@@ -414,6 +414,10 @@ function ResearchPage() {
                     >
                       <Checkbox
                         id={`research-base-${base.id}`}
+                        disabled={
+                          selectedKnowledgeBases.length >= 5 &&
+                          !selectedKnowledgeBases.includes(base.id)
+                        }
                         checked={selectedKnowledgeBases.includes(base.id)}
                         onCheckedChange={(checked) =>
                           setSelectedKnowledgeBases((previous) =>

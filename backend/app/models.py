@@ -632,3 +632,45 @@ class AssistantTurnPublic(SQLModel):
     sources: list[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
+
+
+class ExecutionJob(SQLModel, table=True):
+    """Durable execution intent; a lease token fences every worker mutation."""
+
+    __table_args__ = (
+        UniqueConstraint("kind", "target_id", name="uq_executionjob_target"),
+        UniqueConstraint(
+            "owner_id",
+            "kind",
+            "idempotency_scope",
+            "idempotency_key",
+            name="uq_executionjob_idempotency",
+        ),
+        Index("ix_executionjob_claim", "status", "created_at"),
+    )
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    owner_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE", index=True)
+    kind: str = Field(max_length=20)
+    target_id: uuid.UUID = Field(index=True)
+    payload: dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
+    status: str = Field(default="queued", max_length=20, index=True)
+    idempotency_scope: str = Field(default="", max_length=64)
+    idempotency_key: str | None = Field(default=None, max_length=128)
+    request_hash: str = Field(max_length=64)
+    lease_token: uuid.UUID | None = None
+    worker_id: str | None = Field(default=None, max_length=128)
+    attempt_count: int = Field(default=0)
+    lease_expires_at: datetime | None = Field(
+        default=None, sa_type=DateTime(timezone=True)
+    )
+    heartbeat_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    cancel_requested_at: datetime | None = Field(
+        default=None, sa_type=DateTime(timezone=True)
+    )
+    deadline_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    error_message: str | None = Field(default=None, sa_type=Text)
+    created_at: datetime = Field(
+        default_factory=get_datetime_utc, sa_type=DateTime(timezone=True)
+    )
+    started_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))
+    finished_at: datetime | None = Field(default=None, sa_type=DateTime(timezone=True))

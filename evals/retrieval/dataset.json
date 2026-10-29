@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "purpose": "Synthetic engineering retrieval fixture, not a real embedding or answer-quality benchmark. Labels are human-authored; no real provider was called.",
+  "documents": [
+    {
+      "id": "retention-live",
+      "content": "Live customer records are retained for 30 days. The retention period starts when the account is closed."
+    },
+    {
+      "id": "retention-archive",
+      "content": "Archived audit records have a retention period of 90 days. Audit logs are separated from live customer records."
+    },
+    {
+      "id": "jwt-expiry",
+      "content": "JWT access tokens expire after 60 minutes. Refreshing access requires signing in again."
+    },
+    {
+      "id": "upload-limit",
+      "content": "上传文件支持 PDF、TXT、Markdown。单个文件最大为20 MB，空文件不允许上传。"
+    },
+    {
+      "id": "rx700",
+      "content": "RX-700 sensor battery replacement: disconnect power, open the rear cover, replace the CR2032 battery. RX-700 warranty is 24 months."
+    },
+    {
+      "id": "rx710",
+      "content": "RX-710 sensor uses an AA battery. The RX-710 warranty lasts 12 months; do not use the RX-700 replacement battery."
+    },
+    {
+      "id": "reset-en",
+      "content": "To perform a factory reset, hold the reset button for ten seconds. This erases saved network settings."
+    },
+    {
+      "id": "reset-cn",
+      "content": "恢复出厂设置的方法：长按复位键十秒，设备会清除之前保存的网络配置。"
+    },
+    {
+      "id": "refund",
+      "content": "未拆封商品七天内可以申请退款。已激活的软件许可证不支持无理由退款。"
+    },
+    {
+      "id": "redis-cache",
+      "content": "Redis cache entries have a TTL of 300 seconds. Cache invalidation occurs after a successful database commit."
+    },
+    {
+      "id": "retry",
+      "content": "A transient ingestion failure retries after 10 seconds, then 20 and 40 seconds. Retry uses exponential backoff; invalid files are not retried."
+    },
+    {
+      "id": "row-lock",
+      "content": "PostgreSQL SELECT FOR UPDATE takes a row lock. Competing updates to the same row wait until the transaction commits."
+    },
+    {
+      "id": "cancel",
+      "content": "Stopping a reply marks the turn cancelled. Closing the browser only closes the stream; it does not cancel the worker."
+    },
+    {
+      "id": "hybrid",
+      "content": "Hybrid retrieval combines lexical BM25 and vector candidates with reciprocal rank fusion, RRF. Rank fusion does not compare raw score scales."
+    },
+    {
+      "id": "private",
+      "content": "私有文档仅允许所属用户访问。公共搜索不得发送私有文档原文或密钥。取消联网不影响本地知识库检索。"
+    },
+    {
+      "id": "context",
+      "content": "删除来源文档后，依赖该文档的摘要必须失效。对话原始消息仍保存，后续模型输入不使用失效的私有信息。"
+    },
+    {
+      "id": "invite",
+      "content": "Workspace invitation links are valid for 48 hours. Only workspace administrators can invite members."
+    },
+    {
+      "id": "backup",
+      "content": "Database backups run daily at 02:00 UTC and are kept for 14 days. Restore tests run weekly."
+    },
+    {
+      "id": "support",
+      "content": "Technical support hours are Monday to Friday, 09:00 to 18:00. Emergency issues have an on-call support contact."
+    },
+    {
+      "id": "rate-limit",
+      "content": "Each user may send at most 30 chat messages per minute. Excess requests receive HTTP 429 with a retry hint."
+    }
+  ],
+  "queries": [
+    {
+      "id": "q01",
+      "split": "dev",
+      "query": "What is the retention period for live customer records?",
+      "relevance": {
+        "retention-live": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q02",
+      "split": "dev",
+      "query": "How long do archived audit records stay?",
+      "relevance": {
+        "retention-archive": 2
+      },
+      "category": "paraphrase"
+    },
+    {
+      "id": "q03",
+      "split": "dev",
+      "query": "JWT access tokens expire when?",
+      "relevance": {
+        "jwt-expiry": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q04",
+      "split": "dev",
+      "query": "单个上传文件最大多少 MB？",
+      "relevance": {
+        "upload-limit": 2
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q05",
+      "split": "dev",
+      "query": "RX-700 battery replacement CR2032",
+      "relevance": {
+        "rx700": 2
+      },
+      "category": "exact_model"
+    },
+    {
+      "id": "q06",
+      "split": "dev",
+      "query": "RX-710 warranty 12 months",
+      "relevance": {
+        "rx710": 2
+      },
+      "category": "exact_model"
+    },
+    {
+      "id": "q07",
+      "split": "dev",
+      "query": "restore defaults to clear network settings",
+      "relevance": {
+        "reset-en": 2,
+        "reset-cn": 1
+      },
+      "category": "paraphrase"
+    },
+    {
+      "id": "q08",
+      "split": "dev",
+      "query": "如何恢复出厂设置？",
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q09",
+      "split": "dev",
+      "query": "未拆封商品退款期限",
+      "relevance": {
+        "refund": 2
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q10",
+      "split": "dev",
+      "query": "What is the Redis cache TTL?",
+      "relevance": {
+        "redis-cache": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q11",
+      "split": "dev",
+      "query": "transient ingestion retry backoff",
+      "relevance": {
+        "retry": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q12",
+      "split": "dev",
+      "query": "PostgreSQL row lock concurrent update",
+      "relevance": {
+        "row-lock": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q13",
+      "split": "dev",
+      "query": "关闭浏览器会取消回复吗？",
+      "relevance": {
+        "cancel": 2
+      },
+      "category": "cross_language"
+    },
+    {
+      "id": "q14",
+      "split": "dev",
+      "query": "Hybrid BM25 RRF rank fusion",
+      "relevance": {
+        "hybrid": 2
+      },
+      "category": "technical_term"
+    },
+    {
+      "id": "q15",
+      "split": "dev",
+      "query": "quasar gravitational lensing wavelength",
+      "relevance": {},
+      "category": "unanswerable"
+    },
+    {
+      "id": "q16",
+      "split": "holdout",
+      "query": "账户关闭后的客户资料保留多久？",
+      "relevance": {
+        "retention-live": 2
+      },
+      "category": "cross_language"
+    },
+    {
+      "id": "q17",
+      "split": "holdout",
+      "query": "RX-700 warranty 24 months",
+      "relevance": {
+        "rx700": 2
+      },
+      "category": "exact_model"
+    },
+    {
+      "id": "q18",
+      "split": "holdout",
+      "query": "RX-710 AA battery",
+      "relevance": {
+        "rx710": 2
+      },
+      "category": "exact_model"
+    },
+    {
+      "id": "q19",
+      "split": "holdout",
+      "query": "清除网络配置需要按多久复位键？",
+      "relevance": {
+        "reset-cn": 2,
+        "reset-en": 1
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q20",
+      "split": "holdout",
+      "query": "How many days are database backups kept?",
+      "relevance": {
+        "backup": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q21",
+      "split": "holdout",
+      "query": "workspace invitation links valid hours",
+      "relevance": {
+        "invite": 2
+      },
+      "category": "english"
+    },
+    {
+      "id": "q22",
+      "split": "holdout",
+      "query": "删除来源文档会影响摘要吗？",
+      "relevance": {
+        "context": 2
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q23",
+      "split": "holdout",
+      "query": "私有文档可以发送到公共搜索吗？",
+      "relevance": {
+        "private": 2
+      },
+      "category": "chinese"
+    },
+    {
+      "id": "q24",
+      "split": "holdout",
+      "query": "too many chat requests HTTP 429",
+      "relevance": {
+        "rate-limit": 2
+      },
+      "category": "technical_term"
+    },
+    {
+      "id": "q25",
+      "split": "holdout",
+      "query": "zebrafish embryonic pigmentation chromosome",
+      "relevance": {},
+      "category": "unanswerable"
+    },
+    {
+      "id": "q26",
+      "split": "holdout",
+      "query": "volcanic basalt potassium isotope",
+      "relevance": {},
+      "category": "unanswerable"
+    }
+  ]
+}

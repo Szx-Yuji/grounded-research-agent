@@ -21,7 +21,13 @@ import app.research
 from app.api.routes import research as research_routes
 from app.core.config import settings
 from app.core.db import engine
-from app.models import KnowledgeBase, KnowledgeDocument, ResearchEvent, ResearchRun
+from app.models import (
+    ExecutionJob,
+    KnowledgeBase,
+    KnowledgeDocument,
+    ResearchEvent,
+    ResearchRun,
+)
 from app.services import rag_service, research_runs
 
 RUNS = "/api/v1/research/runs"
@@ -31,8 +37,9 @@ KNOWLEDGE = "/api/v1/knowledge-bases"
 def await_worker(run_id: uuid.UUID) -> None:
     deadline = time.monotonic() + 8
     while time.monotonic() < deadline:
-        with research_runs._lock:
-            if run_id not in research_runs._active:
+        with Session(engine) as session:
+            run = session.get(ResearchRun, run_id)
+            if run is not None and run.status in research_runs.TERMINAL:
                 return
         time.sleep(0.01)
     raise AssertionError("The integration worker did not finish")
@@ -120,57 +127,58 @@ def test_empty_knowledge_base_deletion_needs_no_embedding_key(
         assert session.get(KnowledgeBase, actor_a.knowledge_base_id) is None
 
 
-def test_failed_finish_persistence_is_reconciled_without_repeating_model(
+def test_failed_finish_persistence_becomes_unknown_without_repeating_model(
     client, actors, monkeypatch
 ):
-    actor_a, _ = actors
-    model_calls = []
-    persist_attempts = []
-    original_persist = research_runs._persist_finish
+    from datetime import timedelta
 
-    def fake_execution(*_args, **_kwargs):
+    from app.services import durable_jobs
+
+    actor_a, _ = actors
+    model_calls, persist_attempts = [], []
+
+    def execution(*_args, **_kwargs):
         model_calls.append("executed")
         return {"final_report": "Already generated", "sub_tasks": [], "sources": []}
 
-    def database_unavailable(*_args, **_kwargs):
+    def unavailable(*_args, **_kwargs):
         persist_attempts.append("attempt")
-        raise SQLAlchemyError("Simulated temporary persistence outage")
+        raise SQLAlchemyError("Simulated persistence outage")
 
-    monkeypatch.setattr(app.research, "execute_research", fake_execution)
-    monkeypatch.setattr(research_runs, "_persist_finish", database_unavailable)
+    monkeypatch.setattr(app.research, "execute_research", execution)
+    monkeypatch.setattr(research_runs, "_persist_finish", unavailable)
     response = client.post(
         RUNS,
         headers=actor_a.headers,
         json={"query": "Persistence recovery", "use_web": True},
     )
     assert response.status_code == 202
-    run_id = uuid.UUID(response.json()["id"])
-    try:
-        await_worker(run_id)
-        assert persist_attempts == ["attempt"] * 3
-        with research_runs._lock:
-            assert run_id in research_runs._pending_finishes
-        with Session(engine) as session:
-            run = session.get(ResearchRun, run_id)
-            assert run is not None and run.status == "running"
-        monkeypatch.setattr(research_runs, "_persist_finish", original_persist)
-        recovered = client.get(f"{RUNS}/{run_id}", headers=actor_a.headers)
-        assert recovered.status_code == 200
-        assert recovered.json()["status"] == "succeeded"
-        assert recovered.json()["final_report"] == "Already generated"
-        assert model_calls == ["executed"]
-        with research_runs._lock:
-            assert run_id not in research_runs._pending_finishes
-        client.get(f"{RUNS}/{run_id}", headers=actor_a.headers)
-        with Session(engine) as session:
-            events = session.exec(
-                select(ResearchEvent).where(ResearchEvent.run_id == run_id)
-            ).all()
-            assert [event.event_type for event in events] == ["complete"]
-    finally:
-        # Cleanup even if an assertion fails while persistence was disabled.
-        monkeypatch.setattr(research_runs, "_persist_finish", original_persist)
-        research_runs.reconcile_finishes()
+    identity = uuid.UUID(response.json()["id"])
+    deadline = time.monotonic() + 5
+    while len(persist_attempts) < 3 and time.monotonic() < deadline:
+        time.sleep(0.02)
+    assert persist_attempts == ["attempt"] * 3
+    time.sleep(0.05)
+    with Session(engine) as session:
+        job = session.exec(
+            select(ExecutionJob).where(ExecutionJob.target_id == identity)
+        ).one()
+        job.lease_expires_at = durable_jobs.database_now(session) - timedelta(seconds=1)
+        session.add(job)
+        session.commit()
+    durable_jobs.expire_abandoned()
+    await_worker(identity)
+    result = client.get(f"{RUNS}/{identity}", headers=actor_a.headers).json()
+    assert (
+        result["status"] == "failed"
+        and "automatically replayed" in result["error_message"]
+    )
+    assert model_calls == ["executed"]
+    with Session(engine) as session:
+        events = session.exec(
+            select(ResearchEvent).where(ResearchEvent.run_id == identity)
+        ).all()
+        assert [event.event_type for event in events] == ["error"]
 
 
 def test_upload_to_real_chroma_to_research_report_and_sse(
@@ -192,6 +200,16 @@ def test_upload_to_real_chroma_to_research_report_and_sse(
     )
     assert upload.status_code == 201
     document_id = uuid.UUID(upload.json()["id"])
+    deadline = time.monotonic() + 5
+    while time.monotonic() < deadline:
+        with Session(engine) as pending_session:
+            pending_document = pending_session.get(KnowledgeDocument, document_id)
+            if pending_document is not None and pending_document.status in {
+                "ready",
+                "failed",
+            }:
+                break
+        time.sleep(0.01)
     with Session(engine) as session:
         document = session.get(KnowledgeDocument, document_id)
         assert document is not None
@@ -218,7 +236,11 @@ def test_upload_to_real_chroma_to_research_report_and_sse(
         app.research, "execute_research", execution_engine.execute_research
     )
     model_calls, public_searches = [], []
-    source_id = f"kb:{document_id}:0"
+    from app.services.knowledge_retrieval import retrieve_evidence
+
+    source_id = retrieve_evidence(
+        actor_a.id, [actor_a.knowledge_base_id], "report retention", k=4
+    )[0].source_id
 
     def create(**kwargs):
         model_calls.append(kwargs)

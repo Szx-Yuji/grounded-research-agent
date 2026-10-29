@@ -4,6 +4,7 @@ from typing import Literal, Self
 
 from pydantic import (
     EmailStr,
+    Field,
     HttpUrl,
     PostgresDsn,
     computed_field,
@@ -35,9 +36,19 @@ class Settings(BaseSettings):
     DEEPSEEK_MODEL: str = "deepseek-v4-flash"
     TAVILY_API_KEY: str | None = None
     REDIS_URL: str | None = None
-    RESEARCH_MAX_WORKERS: int = 4
-    RESEARCH_TIMEOUT_SECONDS: int = 300
-    RESEARCH_STREAM_POLL_SECONDS: float = 0.3
+    RESEARCH_MAX_WORKERS: int = Field(default=4, ge=1, le=32)
+    RESEARCH_TIMEOUT_SECONDS: int = Field(default=300, ge=5, le=3600)
+    RESEARCH_STREAM_POLL_SECONDS: float = Field(default=0.3, ge=0.01, le=30)
+    WORKER_POLL_SECONDS: float = Field(default=0.5, ge=0.01, le=30)
+    WORKER_LEASE_SECONDS: int = Field(default=30, ge=2, le=600)
+    WORKER_HEARTBEAT_SECONDS: float = Field(default=5.0, ge=0.1, le=120)
+    WORKER_QUEUE_LIMIT: int = Field(default=100, ge=1, le=10000)
+    WORKER_OWNER_QUEUE_LIMIT: int = Field(default=10, ge=1, le=1000)
+    EXECUTION_MAX_MODEL_CALLS: int = 24
+    EXECUTION_MAX_SEARCH_CALLS: int = 16
+    EXECUTION_MAX_EMBEDDING_CALLS: int = 12
+    EXECUTION_MAX_OUTPUT_TOKENS: int = 50000
+    EXECUTION_MAX_TOOL_CALLS: int = 30
 
     ZHIPUAI_API_KEY: str | None = None
     ZHIPUAI_EMBEDDING_BASE_URL: str = "https://open.bigmodel.cn/api/paas/v4/"
@@ -97,6 +108,27 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
+        for name in (
+            "RESEARCH_MAX_WORKERS",
+            "RESEARCH_TIMEOUT_SECONDS",
+            "RESEARCH_STREAM_POLL_SECONDS",
+            "WORKER_POLL_SECONDS",
+            "WORKER_LEASE_SECONDS",
+            "WORKER_HEARTBEAT_SECONDS",
+            "WORKER_QUEUE_LIMIT",
+            "WORKER_OWNER_QUEUE_LIMIT",
+            "EXECUTION_MAX_MODEL_CALLS",
+            "EXECUTION_MAX_SEARCH_CALLS",
+            "EXECUTION_MAX_EMBEDDING_CALLS",
+            "EXECUTION_MAX_OUTPUT_TOKENS",
+            "EXECUTION_MAX_TOOL_CALLS",
+        ):
+            if getattr(self, name) <= 0:
+                raise ValueError(f"{name} must be positive")
+        if self.WORKER_HEARTBEAT_SECONDS >= self.WORKER_LEASE_SECONDS / 2:
+            raise ValueError(
+                "WORKER_HEARTBEAT_SECONDS must be less than half the lease"
+            )
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
         for host in self.DATABASE_URL.hosts():
             self._check_default_secret("DATABASE_URL password", host["password"])

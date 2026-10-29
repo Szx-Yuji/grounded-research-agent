@@ -27,8 +27,9 @@ def wait_until(predicate: Callable[[], bool]) -> None:
 
 
 def worker_done(run_id: uuid.UUID) -> bool:
-    with research_runs._lock:
-        return run_id not in research_runs._active
+    with Session(engine) as session:
+        run = session.get(ResearchRun, run_id)
+        return run is not None and run.status in research_runs.TERMINAL
 
 
 def stored_run(run_id: uuid.UUID) -> ResearchRun:
@@ -276,7 +277,7 @@ def test_cancelled_run_survives_late_worker_completion_and_running_delete_is_rej
     assert [event["event"] for event in events] == ["cancelled"]
 
 
-def test_restart_recovery_only_marks_unfinished_runs_failed(actors):
+def test_api_maintenance_preserves_unleased_runs(actors):
     actor_a, _ = actors
     runs = {
         status: seed_run(actor_a.id, status)
@@ -290,14 +291,8 @@ def test_restart_recovery_only_marks_unfinished_runs_failed(actors):
             events = session.exec(
                 select(ResearchEvent).where(ResearchEvent.run_id == run_id)
             ).all()
-        if previous in {"queued", "running"}:
-            assert run.status == "failed"
-            assert run.error_message == research_runs.RESTART_MESSAGE
-            assert len(events) == 1
-            assert events[0].event_type == "error"
-        else:
-            assert run.status == previous
-            assert events == []
+        assert run.status == previous
+        assert events == []
 
 
 def test_missing_model_configuration_does_not_create_run(client, actors, monkeypatch):

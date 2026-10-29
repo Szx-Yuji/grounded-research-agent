@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from app.api.routes import (
     assistant,
     conversations,
+    integrations,
     items,
     knowledge_bases,
     login,
@@ -22,6 +23,7 @@ api_router.include_router(knowledge_bases.router)
 api_router.include_router(conversations.router)
 api_router.include_router(research.router)
 api_router.include_router(assistant.router)
+api_router.include_router(integrations.router)
 
 if settings.FASTAPI_ENV == "development":
     api_router.include_router(private.router)

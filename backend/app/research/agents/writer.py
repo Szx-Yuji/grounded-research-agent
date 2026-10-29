@@ -6,6 +6,7 @@ from app.research.events import emit, emit_log
 from app.research.evidence import collect_sources, format_evidence
 from app.research.llm import get_client
 from app.research.models import ResearchState
+from app.runtime.context import BudgetExceeded
 
 SYSTEM_PROMPT = (
     "You are a research writer. Given an analysis and the original sources, "
@@ -75,7 +76,7 @@ def writer_node(state: ResearchState) -> dict:
             "current_agent": "Writer",
             "error": None,
         }
-    except ResearchCancelled:
+    except ResearchCancelled, BudgetExceeded:
         raise
     except Exception:
         return {

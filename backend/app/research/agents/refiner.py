@@ -6,6 +6,7 @@ from app.research.errors import ResearchCancelled
 from app.research.events import emit_log
 from app.research.llm import get_client
 from app.research.models import ResearchState
+from app.runtime.context import BudgetExceeded
 
 SYSTEM_PROMPT = (
     "You are a search query specialist. You will be given research "
@@ -45,7 +46,7 @@ def refiner_node(state: ResearchState) -> dict:
             extra_body={"thinking": {"type": config.DEEPSEEK_THINKING}},
         )
         refined = parse_task_list(response.choices[0].message.content or "")
-    except ResearchCancelled:
+    except ResearchCancelled, BudgetExceeded:
         raise
     except Exception:
         # Not fatal: fall through to analysis with what the first pass found.

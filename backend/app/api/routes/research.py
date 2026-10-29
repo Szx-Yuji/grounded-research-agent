@@ -23,8 +23,12 @@ router = APIRouter(prefix="/research/runs", tags=["research"])
 
 
 @router.post("", response_model=ResearchRunPublic, status_code=202)
-def create_run(request: ResearchCreate, current_user: CurrentUser) -> ResearchRunPublic:
-    return research_runs.start_run(current_user.id, request)
+def create_run(
+    request: ResearchCreate,
+    current_user: CurrentUser,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+) -> ResearchRunPublic:
+    return research_runs.start_run(current_user.id, request, idempotency_key)
 
 
 @router.get("", response_model=ResearchRunsPublic)
@@ -70,7 +74,10 @@ def cancel_run(
 def delete_run(
     run_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
 ) -> Response:
+    from app.services.durable_jobs import delete_target_jobs
+
     run = research_runs.owned_run(session, run_id, current_user.id)
+    delete_target_jobs(session, "research", [run_id], current_user.id)
     session.refresh(run, with_for_update=True)
     if run.status not in research_runs.TERMINAL:
         raise HTTPException(

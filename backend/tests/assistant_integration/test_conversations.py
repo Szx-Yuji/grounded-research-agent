@@ -34,8 +34,9 @@ def wait_turn(turn_id):
     deadline = time.monotonic() + 5
     turn_id = uuid.UUID(str(turn_id))
     while time.monotonic() < deadline:
-        with service._lock:
-            if turn_id not in service._active:
+        with Session(engine) as session:
+            turn = session.get(AssistantTurn, turn_id)
+            if turn is not None and turn.status in service.TERMINAL:
                 return
         time.sleep(0.01)
     raise AssertionError("Assistant worker did not finish")
@@ -453,7 +454,7 @@ def test_deleted_private_source_invalidates_summary_and_redacts_model_history(
     assert "Sensitive answer" not in str(captured[2])
 
 
-def test_restart_marks_only_active_turns_failed_and_keeps_history(actors):
+def test_api_maintenance_never_recovers_unleased_active_turns(actors):
     actor_a, _ = actors
     turn_ids = {}
     with Session(engine) as session:
@@ -479,11 +480,7 @@ def test_restart_marks_only_active_turns_failed_and_keeps_history(actors):
             events = session.exec(
                 select(AssistantEvent).where(AssistantEvent.turn_id == turn_id)
             ).all()
-            if before in {"queued", "running"}:
-                assert turn.status == "failed" and "restart" in turn.error_message
-                assert len(events) == 1 and events[0].event_type == "error"
-            else:
-                assert turn.status == before and events == []
+            assert turn.status == before and events == []
 
 
 def test_concurrent_posts_create_exactly_one_active_turn(client, actors, monkeypatch):

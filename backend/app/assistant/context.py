@@ -7,6 +7,7 @@ from typing import Any
 from app.research import config
 from app.research.events import check_cancelled
 from app.research.llm import get_client
+from app.runtime.context import BudgetExceeded
 
 KEEP_RECENT_MESSAGES = 12
 SUMMARY_TRIGGER_MESSAGES = 16
@@ -106,7 +107,7 @@ def prepare_context(
                 notify(
                     f"Summarized {consumed} earlier messages; the conversation continues with recent turns."
                 )
-            except ResearchCancelled:
+            except ResearchCancelled, BudgetExceeded:
                 raise
             except Exception:
                 limited = True

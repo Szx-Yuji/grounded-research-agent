@@ -23,6 +23,8 @@ constraint-dependencies = [
     "multidict>=6.9.1,<7",
     "oauthlib>=4.0.0,<5",
     "urllib3>=2.8.0,<3",
+    "dnspython>=2.9.0,<3",
+    "langgraph-sdk>=0.4.6,<0.5",
 ]
 
 [tool.typos.files]

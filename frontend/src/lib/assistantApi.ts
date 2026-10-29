@@ -1,16 +1,8 @@
 import { z } from "zod"
+import { apiErrorMessage } from "@/lib/apiErrors"
+import { evidenceSchema } from "@/lib/evidence"
 
 import type { ResearchLog } from "@/lib/researchApi"
-
-const evidenceSchema = z.object({
-  source_id: z.string(),
-  kind: z.enum(["knowledge", "web"]),
-  content: z.string(),
-  title: z.string(),
-  url: z.string().nullable().optional(),
-  document_id: z.string().nullable().optional(),
-  chunk_index: z.number().nullable().optional(),
-})
 
 const conversationSchema = z.object({
   id: z.string(),
@@ -102,13 +94,9 @@ async function request(path: string, options: RequestInit = {}) {
       localStorage.removeItem("access_token")
       window.location.assign("/login")
     }
-    const payload = z
-      .object({ detail: z.string() })
-      .safeParse(await response.json().catch(() => null))
+    const payload: unknown = await response.json().catch(() => null)
     throw new AssistantApiError(
-      payload.success
-        ? payload.data.detail
-        : `请求未完成（${response.status}），请重试。`,
+      apiErrorMessage(payload, `请求未完成（${response.status}），请重试。`),
       response.status,
     )
   }
@@ -154,9 +142,10 @@ export const assistantApi = {
       .object({ data: z.array(messageSchema), count: z.number() })
       .parse(await response.json())
   },
-  async send(id: string, content: string) {
+  async send(id: string, content: string, idempotencyKey: string) {
     const response = await request(`${conversationPath(id)}/messages`, {
       method: "POST",
+      headers: { "Idempotency-Key": idempotencyKey },
       body: JSON.stringify({ content }),
     })
     return turnSchema.parse(await response.json())
