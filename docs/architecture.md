@@ -29,6 +29,8 @@ flowchart TD
     MCP[本机 MCP 客户端] -->|已有 JWT / 固定只读接口| API
 ```
 
+`runtime/metrics.py` 提供低基数进程指标，`/utils/metrics` 叠加 PostgreSQL 队列和调用状态。它用于本机排障和面试演示，不是 Prometheus/OTel 后端；没有把 Prompt、来源正文或用户内容发送到远端观测平台。
+
 ## 业务对象与执行对象
 
 | 对象 | 保存内容 |
@@ -47,7 +49,7 @@ flowchart TD
 
 `services/durable_jobs.py` 管理任务，`python -m app.worker` 独立运行。API 不隐式执行研究任务。队列通过 `SELECT ... FOR UPDATE SKIP LOCKED` 支持竞争领取不同任务；当前嵌入式索引部署只允许一个 AI worker 进程，内部使用有限线程。worker 的专用 PostgreSQL session lock 防止第二个 worker 误启动；每轮和领取前检查原连接仍持锁，丢锁即停止领取、取消活动执行并退出。此护栏不解决 API 侧对同一本地 Chroma 目录的访问边界，也不代表容量验证，详见运维说明。
 
-这条队列覆盖统一聊天轮次、研究和文档索引三类任务。上传/显式重试将文档与 document 意图同事务入队；worker 在有效 lease 内解析，最终 ready 与分块发布、任务成功一起提交。文档在向量投影之后失去 lease 时不得发布新的 ready 版本。遗留知识库独立问答仍有自己的同步调用路径，不继承统一聊天的完整预算/trace 保证。
+这条队列覆盖统一聊天轮次、研究和文档索引三类任务。上传/显式重试将文档与 document 意图同事务入队；worker 在有效 lease 内解析，最终 ready 与分块发布、任务成功一起提交。文档在向量投影之后失去 lease 时不得发布新的 ready 版本。旧知识库 `/knowledge-bases/{id}/ask` 已通过兼容适配器复用统一 RAG 子 Agent、混合检索和预算，但仍是同步请求，不进入 durable job/RuntimeCall PostgreSQL 账本；旧会话的同步/流式问答仍是兼容边界。需要持久执行和完整调用详情时，应使用 `/chat`。
 
 领取时将 `queued` 改为 `running`，写入新的 `lease_token`、worker、心跳、过期时间和执行截止时间。心跳只续当前有效 lease。写事件、调用记录和最终结果前重新验证 lease，旧 worker 返回的迟到结果不能覆盖终态。
 

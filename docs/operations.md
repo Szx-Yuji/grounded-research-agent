@@ -70,6 +70,8 @@ GET /api/v1/integrations/research/{run_id}/execution
 
 使用已有 JWT，接口只返回当前用户的执行。检查 `status`、`attempt_count`、`calls`、`usage_complete`、`calls_truncated`，以及 input/output Token 是否实际存在。`estimated_cost` 未实现价格表时为 null，不表示免费。HTTP 响应的 `X-Request-Id` 可对照结构化接口日志，日志默认不记录请求正文和 Token。
 
+管理员排查整体运行状态时可读取 `GET /api/v1/utils/metrics`。该接口返回 API 进程请求计数/耗时摘要，以及数据库中 queued、running、interrupted 和 provider call 状态数量。它不输出 Prompt、来源正文或账号敏感字段；当前是本地低基数指标，不等价于已接入 Prometheus、OpenTelemetry 或 Langfuse。
+
 ## 故障验收矩阵
 
 五分钟内演示现有离线工程场景，在项目根执行：

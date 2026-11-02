@@ -2,7 +2,7 @@
 
 ## 2026-10-29 工程化版本
 
-环境为本机 macOS、Python 3.14.6、Bun 1.4.2 与 PostgreSQL 16；写库测试使用独立 `grounded_research_test` 数据库。2026-10-29 最终完整入口实际通过：**227 项后端测试、14 项浏览器回归、TypeScript/Vite 生产构建**。另执行工程场景命令，36 个用例和7个场景均通过；它重跑部分专项，不应额外累加到227项中。
+环境为本机 macOS、Python 3.14.6、Bun 1.4.2 与 PostgreSQL 16；写库测试使用独立 `grounded_research_test` 数据库。2026-11-02 完整入口实际通过：**229 项后端测试、14 项浏览器回归、TypeScript/Vite 生产构建**。另执行工程场景命令，36 个用例和7个场景均通过；它重跑部分专项，不应额外累加到229项中。
 
 | 专项 | 实际结果 | 覆盖和替身范围 |
 |---|---|---|
@@ -19,10 +19,14 @@
 | 继承账户/API/CRUD | 58 项通过 | 专用测试库；邮件发送替身 |
 | 离线工程场景演示 | 36 用例、7 场景通过 | 独立命令重跑 runtime13/durable20/runtime集成3，真实生成逐用例 JSON，不调用供应商 |
 | 浏览器回归 | 14 项通过 | 原研究5项、聊天5项、新工程4项；页面 API 使用替身 |
+| Agent Harness fixture | 8 个用例通过 | 工具选择、引用契约、拒答、私有查询保护、Skills按需加载、追问来源复用；确定性模型替身 |
+| 兼容 RAG / 指标接口 | 2 项通过 | 旧知识库适配器复用统一 RAG 子 Agent 与预算；管理员指标接口仅返回低基数状态 |
 | 固定检索消融 | 成功生成报告 | 20 个合成 chunks、26 问，开发15/留出11；BM25、toy concept cosine、RRF；未调用真实 Embedding |
 | 新模块静态检查 | 通过 | Ruff、shell语法；MCP/Skills/runtime/新集成API的ty检查；不等于对全部历史代码做严格类型验证 |
 
 MCP 的 58 项包含本地配置范围、凭据脱敏、不读取 `.env`、固定接口、UUID/参数限制、禁止跳转、网络错误脱敏、整请求 deadline、响应大小及技能路径/符号链接/YAML 校验。这组隔离测试中的 stdio 子进程只发现工具，不调用真实后台或供应商；另有下述实际后台联调。
+
+Agent Harness 报告在 [agent-fixture.json](../evals/results/agent-fixture.json)。其中 `tool_selection_accuracy` 等指标描述的是本项目编排契约在固定替身下的通过率，不是 DeepSeek 或其他真实模型的准确率；真实 provider 模式需另行显式授权、脱敏和计费记录。
 
 补充真实本机联调：登录→上传合成TXT→返回uploaded→独立worker发布ready→带权限混合检索返回24个月保修片段，索引代和dense降级警告均存在；缺主模型Key时503且不保存用户消息。临时会话、知识库、文件和任务记录随后清理。新增执行详情已以模拟记录完成桌面/手机截图检查，手机无横向溢出，截图见[桌面](screenshots/engineering-desktop.png)与[手机](screenshots/engineering-mobile.png)；这些截图不能当作真实模型输出。官方MCP SDK经真实stdio子进程发现6个工具，并用配置JWT调用实际后端列知识库成功；这项不是MockTransport替身，也没有调用付费服务。
 

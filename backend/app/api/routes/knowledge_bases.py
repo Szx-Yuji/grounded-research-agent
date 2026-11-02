@@ -6,6 +6,7 @@ from fastapi import (
     File,
     HTTPException,
     Query,
+    Response,
     UploadFile,
 )
 from fastapi.responses import FileResponse
@@ -37,7 +38,7 @@ from app.services.document_storage import (
     save_document_file,
 )
 from app.services.knowledge_retrieval import retrieve_evidence
-from app.services.rag_graph import RAGState, rag_graph
+from app.services.legacy_knowledge import execute_legacy_knowledge
 from app.services.rag_service import (
     delete_document_vectors,
     delete_knowledge_base_vectors,
@@ -483,6 +484,7 @@ def ask_knowledge_base(
     question_in: KnowledgeAskRequest,
     session: SessionDep,
     current_user: CurrentUser,
+    response: Response,
 ) -> KnowledgeAskResponse:
     statement = select(KnowledgeBase).where(
         KnowledgeBase.id == knowledge_base_id,
@@ -497,17 +499,26 @@ def ask_knowledge_base(
             detail="Knowledge base not found",
         )
 
-    result = rag_graph.invoke(
-        RAGState(
-            knowledge_base_id=knowledge_base.id,
-            question=question_in.question,
-            k=question_in.k,
+    response.headers["Deprecation"] = "true"
+    response.headers["X-Grounded-Replacement"] = "/api/v1/assistant/conversations"
+    try:
+        result = execute_legacy_knowledge(
+            question_in.question,
+            current_user.id,
+            [knowledge_base.id],
         )
-    )
+    except Exception as exc:
+        from app.assistant.errors import AssistantExecutionError
+        from app.research.errors import ResearchExecutionError
 
-    state = RAGState.model_validate(result)
+        if isinstance(exc, (AssistantExecutionError, ResearchExecutionError)):
+            raise HTTPException(502, str(exc)) from None
+        raise HTTPException(
+            502, "The knowledge assistant could not complete this request"
+        ) from None
 
-    if not state.answer:
+    answer = str(result.get("answer", "")).strip()
+    if not answer:
         raise HTTPException(
             status_code=502,
             detail="The language model returned no answer",
@@ -516,17 +527,23 @@ def ask_knowledge_base(
     sources = [
         KnowledgeAnswerSource(
             citation=index,
-            page_content=document.page_content,
-            source_metadata=document.metadata,
+            page_content=source["content"],
+            source_metadata={
+                "source_id": source["source_id"],
+                "source": source["title"],
+                "kind": source["kind"],
+                "document_id": source.get("document_id"),
+                "chunk_index": source.get("chunk_index"),
+            },
         )
-        for index, document in enumerate(
-            state.documents,
+        for index, source in enumerate(
+            result.get("sources", []),
             start=1,
         )
     ]
 
     return KnowledgeAskResponse(
-        answer=state.answer,
+        answer=answer,
         sources=sources,
     )
 

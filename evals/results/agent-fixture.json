@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "mode": "offline_agent_harness_fixture",
+  "provider_calls": 0,
+  "limitations": [
+    "Deterministic fake model; this is an orchestration contract report, not real model quality.",
+    "Use a separately approved provider mode and a redacted holdout set for production quality claims."
+  ],
+  "counts": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": 0
+  },
+  "aggregate": {
+    "tool_selection_accuracy": 1.0,
+    "citation_precision_contract": 1.0,
+    "citation_recall_contract": 1.0,
+    "private_query_safety": 1.0
+  },
+  "cases_detail": [
+    {
+      "id": "direct_answer",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [],
+      "public_query_count": 0,
+      "citation_ids": []
+    },
+    {
+      "id": "private_rag",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "ask_knowledge"
+      ],
+      "public_query_count": 0,
+      "citation_ids": [
+        "kb:fixture:0"
+      ]
+    },
+    {
+      "id": "broad_research",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "research_topic"
+      ],
+      "public_query_count": 0,
+      "citation_ids": [
+        "web:fixture:0"
+      ]
+    },
+    {
+      "id": "public_lookup",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "search_web"
+      ],
+      "public_query_count": 1,
+      "citation_ids": [
+        "web:fixture:0"
+      ]
+    },
+    {
+      "id": "skill_progressive_loading",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "load_skill"
+      ],
+      "public_query_count": 0,
+      "citation_ids": []
+    },
+    {
+      "id": "private_query_block",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "search_web"
+      ],
+      "public_query_count": 0,
+      "citation_ids": []
+    },
+    {
+      "id": "unanswerable_rag",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [
+        "ask_knowledge"
+      ],
+      "public_query_count": 0,
+      "citation_ids": []
+    },
+    {
+      "id": "followup_source_reuse",
+      "status": "passed",
+      "checks": {
+        "tool_selection": true,
+        "citation_precision": true,
+        "citation_recall": true,
+        "forbidden_content_absent": true,
+        "private_query_not_public": true
+      },
+      "tool_calls": [],
+      "public_query_count": 0,
+      "citation_ids": [
+        "kb:fixture:0"
+      ]
+    }
+  ]
+}

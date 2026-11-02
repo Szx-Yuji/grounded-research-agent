@@ -65,6 +65,8 @@ jobs:
         working-directory: backend
       - name: Provider-free retrieval ablation
         run: uv run --frozen --package app python evals/retrieval/run.py --mode fixture
+      - name: Provider-free Agent harness evaluation
+        run: uv run --frozen --package app python evals/agent/run.py
       - run: uv run --frozen pytest tests/api tests/crud -q
         working-directory: backend
       - run: uv run --frozen ruff check app
@@ -79,3 +81,9 @@ jobs:
         with:
           name: retrieval-ablation
           path: evals/results/retrieval-fixture.*
+      - name: Keep Agent harness results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: agent-harness-evaluation
+          path: evals/results/agent-fixture.json

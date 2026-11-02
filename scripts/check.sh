@@ -16,6 +16,7 @@ for suite in ('runtime', 'mcp_skills', 'retrieval', 'research', 'assistant', 'in
     subprocess.run([str(root/'.venv/bin/pytest'),f'--confcutdir=tests/{suite}',f'tests/{suite}','-q'],cwd=root/'backend',env=env,check=True)
 subprocess.run([str(root/'.venv/bin/pytest'),'tests/api','tests/crud','-q'],cwd=root/'backend',env=env,check=True)
 subprocess.run([str(root/'.venv/bin/python'),'evals/retrieval/run.py','--mode','fixture'],cwd=root,env=env,check=True)
+subprocess.run([str(root/'.venv/bin/python'),'evals/agent/run.py'],cwd=root,env=env,check=True)
 
 PY
 .venv/bin/ruff check backend/app backend/tests/runtime backend/tests/runtime_integration backend/tests/mcp_skills backend/tests/retrieval backend/tests/retrieval_pg backend/tests/durable_integration

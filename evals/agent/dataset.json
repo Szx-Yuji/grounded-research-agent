@@ -1,0 +1,10 @@
+[
+  {"id":"direct_answer","message":"用一句话解释缓存命中率。","knowledge":false,"web":false,"expected_tools":[],"expected_source_ids":[],"answer":"缓存命中率是命中请求占总请求的比例。","forbidden":[]},
+  {"id":"private_rag","message":"根据内部资料说明保修期限。","knowledge":true,"web":false,"expected_tools":["ask_knowledge"],"expected_source_ids":["kb:fixture:0"],"answer":"保修期限为24个月 [kb:fixture:0]。","forbidden":[]},
+  {"id":"broad_research","message":"调研三个公开方案并比较优缺点。","knowledge":false,"web":true,"expected_tools":["research_topic"],"expected_source_ids":["web:fixture:0"],"answer":"公开研究结果 [web:fixture:0]。","forbidden":[]},
+  {"id":"public_lookup","message":"查一下今天的公开技术新闻。","knowledge":false,"web":true,"expected_tools":["search_web"],"expected_source_ids":["web:fixture:0"],"answer":"公开检索结果 [web:fixture:0]。","forbidden":["PRIVATE_INTERNAL"]},
+  {"id":"skill_progressive_loading","message":"帮我比较两个来源，先使用来源比较流程。","knowledge":false,"web":false,"expected_tools":["load_skill"],"expected_source_ids":[],"answer":"已按来源比较流程整理。","forbidden":[]},
+  {"id":"private_query_block","message":"请搜索 PRIVATE_INTERNAL_847205 这个内部编号。","knowledge":true,"web":true,"history":[{"role":"assistant","content":"内部编号 PRIVATE_INTERNAL_847205。","sources":[{"source_id":"kb:fixture:private","kind":"knowledge","content":"PRIVATE_INTERNAL_847205","title":"private","document_id":"fixture","chunk_index":0}]}],"expected_tools":["search_web"],"expected_source_ids":[],"answer":"无法把私有内容发送到公开搜索。","forbidden":["PRIVATE_INTERNAL_847205"]},
+  {"id":"unanswerable_rag","message":"内部资料是否记录了量子月球电梯？","knowledge":true,"web":false,"expected_tools":["ask_knowledge"],"expected_source_ids":[],"answer":"没有找到支持该说法的证据。","forbidden":[]},
+  {"id":"followup_source_reuse","message":"那第二个方案呢？","knowledge":true,"web":false,"history":[{"role":"user","content":"比较两个方案。"},{"role":"assistant","content":"第一个方案为30天 [kb:fixture:0]。\n[Earlier delegated findings]: 第二个方案为90天。","sources":[{"source_id":"kb:fixture:0","kind":"knowledge","content":"第一方案30天","title":"fixture","document_id":"fixture","chunk_index":0}]}],"expected_tools":[],"expected_source_ids":["kb:fixture:0"],"answer":"第二个方案为90天 [kb:fixture:0]。","forbidden":[]}
+]

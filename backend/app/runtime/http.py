@@ -6,6 +6,8 @@ import re
 import time
 import uuid
 
+from app.runtime.metrics import registry
+
 logger = logging.getLogger("grounded.http")
 SAFE_ID = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
 
@@ -40,6 +42,12 @@ class CorrelationMiddleware:
         try:
             await self.app(scope, receive, correlated_send)
         finally:
+            registry.increment(
+                f"http_requests_total:{scope.get('method', 'unknown')}:{status}"
+            )
+            registry.observe_ms(
+                "http_request_duration", (time.monotonic() - started) * 1000
+            )
             route = scope.get("route")
             logger.info(
                 json.dumps(

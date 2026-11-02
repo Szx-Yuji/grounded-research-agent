@@ -25,7 +25,7 @@
       "mrr": 0.9285714285714286,
       "ndcg": 0.9037478081612228,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.10179446738523741
+      "mean_ranking_ms": 0.10183046106249094
     },
     {
       "split": "dev",
@@ -37,7 +37,7 @@
       "mrr": 0.8214285714285714,
       "ndcg": 0.8162598096115689,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.019685998753023643
+      "mean_ranking_ms": 0.019677662445853155
     },
     {
       "split": "dev",
@@ -49,7 +49,7 @@
       "mrr": 1.0,
       "ndcg": 0.9974243166654752,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.12286093454652776
+      "mean_ranking_ms": 0.12293305286827187
     },
     {
       "split": "holdout",
@@ -61,7 +61,7 @@
       "mrr": 0.8888888888888888,
       "ndcg": 0.86958162856984,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.10164390815506605
+      "mean_ranking_ms": 0.10277291188355196
     },
     {
       "split": "holdout",
@@ -73,7 +73,7 @@
       "mrr": 0.9444444444444444,
       "ndcg": 0.9589921948412731,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.01789018278941512
+      "mean_ranking_ms": 0.01805682338520207
     },
     {
       "split": "holdout",
@@ -85,7 +85,7 @@
       "mrr": 0.9444444444444444,
       "ndcg": 0.9549855763209012,
       "empty_result": 1.0,
-      "mean_ranking_ms": 0.12061736594081264
+      "mean_ranking_ms": 0.12194718477654863
     }
   ],
   "queries": [
@@ -101,7 +101,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.1343749900115654,
+      "ranking_ms": 0.1354169799014926,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -119,7 +119,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.029625007300637662,
+      "ranking_ms": 0.029874994652345777,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -137,7 +137,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.1677919935900718,
+      "ranking_ms": 0.1692079531494528,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -155,7 +155,7 @@
       "relevance": {
         "retention-archive": 2
       },
-      "ranking_ms": 0.10704199667088687,
+      "ranking_ms": 0.10916698374785483,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -173,7 +173,7 @@
       "relevance": {
         "retention-archive": 2
       },
-      "ranking_ms": 0.024791996111162007,
+      "ranking_ms": 0.02520799171179533,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -191,7 +191,7 @@
       "relevance": {
         "retention-archive": 2
       },
-      "ranking_ms": 0.1340429880656302,
+      "ranking_ms": 0.13654198846779764,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -208,7 +208,7 @@
       "relevance": {
         "jwt-expiry": 2
       },
-      "ranking_ms": 0.09587498789187521,
+      "ranking_ms": 0.09529199451208115,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -226,7 +226,7 @@
       "relevance": {
         "jwt-expiry": 2
       },
-      "ranking_ms": 0.021915999241173267,
+      "ranking_ms": 0.021832995116710663,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -244,7 +244,7 @@
       "relevance": {
         "jwt-expiry": 2
       },
-      "ranking_ms": 0.1193739881273359,
+      "ranking_ms": 0.11862500105053186,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -264,7 +264,7 @@
       "relevance": {
         "upload-limit": 2
       },
-      "ranking_ms": 0.1204169966513291,
+      "ranking_ms": 0.12141698971390724,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -279,7 +279,7 @@
       "relevance": {
         "upload-limit": 2
       },
-      "ranking_ms": 0.015541998436674476,
+      "ranking_ms": 0.0153339933604002,
       "recall": 0.0,
       "mrr": 0,
       "ndcg": 0.0,
@@ -299,7 +299,7 @@
       "relevance": {
         "upload-limit": 2
       },
-      "ranking_ms": 0.13787500211037695,
+      "ranking_ms": 0.1387929660268128,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -317,7 +317,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.09541699546389282,
+      "ranking_ms": 0.09458299609832466,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -335,7 +335,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.018457998521625996,
+      "ranking_ms": 0.018582999473437667,
       "recall": 1.0,
       "mrr": 0.5,
       "ndcg": 0.6309297535714574,
@@ -353,7 +353,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.11508299212437123,
+      "ranking_ms": 0.11454097693786025,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -371,7 +371,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.0923750048968941,
+      "ranking_ms": 0.09029099601320922,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -389,7 +389,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.017457990907132626,
+      "ranking_ms": 0.01720801810733974,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -407,7 +407,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.11104099394287914,
+      "ranking_ms": 0.10858301538974047,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -426,7 +426,7 @@
         "reset-en": 2,
         "reset-cn": 1
       },
-      "ranking_ms": 0.09366701124235988,
+      "ranking_ms": 0.09449999197386205,
       "recall": 0.5,
       "mrr": 1.0,
       "ndcg": 0.8262346571285599,
@@ -446,7 +446,7 @@
         "reset-en": 2,
         "reset-cn": 1
       },
-      "ranking_ms": 0.02229199162684381,
+      "ranking_ms": 0.0219999928958714,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 0.7967075809905066,
@@ -466,7 +466,7 @@
         "reset-en": 2,
         "reset-cn": 1
       },
-      "ranking_ms": 0.11737599561456591,
+      "ranking_ms": 0.11804097448475659,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 0.9639404333166532,
@@ -484,7 +484,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.10612500773277134,
+      "ranking_ms": 0.10762500460259616,
       "recall": 0.5,
       "mrr": 1.0,
       "ndcg": 0.8262346571285599,
@@ -503,7 +503,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.01575000351294875,
+      "ranking_ms": 0.016040983609855175,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -522,7 +522,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.12291701568756253,
+      "ranking_ms": 0.12483299360610545,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -539,7 +539,7 @@
       "relevance": {
         "refund": 2
       },
-      "ranking_ms": 0.10745800682343543,
+      "ranking_ms": 0.10945799294859171,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -554,7 +554,7 @@
       "relevance": {
         "refund": 2
       },
-      "ranking_ms": 0.014707999071106315,
+      "ranking_ms": 0.014499993994832039,
       "recall": 0.0,
       "mrr": 0,
       "ndcg": 0.0,
@@ -571,7 +571,7 @@
       "relevance": {
         "refund": 2
       },
-      "ranking_ms": 0.12291601160541177,
+      "ranking_ms": 0.12479099677875638,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -588,7 +588,7 @@
       "relevance": {
         "redis-cache": 2
       },
-      "ranking_ms": 0.08974999946076423,
+      "ranking_ms": 0.08745800005272031,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -605,7 +605,7 @@
       "relevance": {
         "redis-cache": 2
       },
-      "ranking_ms": 0.018999999156221747,
+      "ranking_ms": 0.01879199407994747,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -622,7 +622,7 @@
       "relevance": {
         "redis-cache": 2
       },
-      "ranking_ms": 0.10958299390040338,
+      "ranking_ms": 0.10716597898863256,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -640,7 +640,7 @@
       "relevance": {
         "retry": 2
       },
-      "ranking_ms": 0.09395800589118153,
+      "ranking_ms": 0.09079099982045591,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -658,7 +658,7 @@
       "relevance": {
         "retry": 2
       },
-      "ranking_ms": 0.019875005818903446,
+      "ranking_ms": 0.019749975763261318,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -676,7 +676,7 @@
       "relevance": {
         "retry": 2
       },
-      "ranking_ms": 0.11491600889712572,
+      "ranking_ms": 0.11158298002555966,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -693,7 +693,7 @@
       "relevance": {
         "row-lock": 2
       },
-      "ranking_ms": 0.09125001088250428,
+      "ranking_ms": 0.09216601029038429,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -710,7 +710,7 @@
       "relevance": {
         "row-lock": 2
       },
-      "ranking_ms": 0.02058300015050918,
+      "ranking_ms": 0.02037500962615013,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -727,7 +727,7 @@
       "relevance": {
         "row-lock": 2
       },
-      "ranking_ms": 0.11258301674388349,
+      "ranking_ms": 0.11333299335092306,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -746,7 +746,7 @@
       "relevance": {
         "cancel": 2
       },
-      "ranking_ms": 0.11566600005608052,
+      "ranking_ms": 0.11245801579207182,
       "recall": 0.0,
       "mrr": 0,
       "ndcg": 0.0,
@@ -763,7 +763,7 @@
       "relevance": {
         "cancel": 2
       },
-      "ranking_ms": 0.016749996575526893,
+      "ranking_ms": 0.0160830095410347,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -783,7 +783,7 @@
       "relevance": {
         "cancel": 2
       },
-      "ranking_ms": 0.13391600805334747,
+      "ranking_ms": 0.12991600669920444,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -800,7 +800,7 @@
       "relevance": {
         "hybrid": 2
       },
-      "ranking_ms": 0.0934169947868213,
+      "ranking_ms": 0.09316697833128273,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -817,7 +817,7 @@
       "relevance": {
         "hybrid": 2
       },
-      "ranking_ms": 0.019374987459741533,
+      "ranking_ms": 0.019415980204939842,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -834,7 +834,7 @@
       "relevance": {
         "hybrid": 2
       },
-      "ranking_ms": 0.11362499208189547,
+      "ranking_ms": 0.11341596837155521,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -847,7 +847,7 @@
       "method": "bm25",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.09012500231619924,
+      "ranking_ms": 0.09366698213852942,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -860,7 +860,7 @@
       "method": "dense_fixture_concept_cosine",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.019166007405146956,
+      "ranking_ms": 0.020167004549875855,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -873,7 +873,7 @@
       "method": "hybrid_rrf",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.10987401765305549,
+      "ranking_ms": 0.11462499969638884,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -892,7 +892,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.11991700739599764,
+      "ranking_ms": 0.12375001097097993,
       "recall": 0.0,
       "mrr": 0,
       "ndcg": 0.0,
@@ -910,7 +910,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.017290993127971888,
+      "ranking_ms": 0.017582991858944297,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -930,7 +930,7 @@
       "relevance": {
         "retention-live": 2
       },
-      "ranking_ms": 0.13891600247006863,
+      "ranking_ms": 0.14308301615528762,
       "recall": 1.0,
       "mrr": 0.5,
       "ndcg": 0.6309297535714574,
@@ -948,7 +948,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.09008299093693495,
+      "ranking_ms": 0.0917089928407222,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -966,7 +966,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.017084006685763597,
+      "ranking_ms": 0.017125013982877135,
       "recall": 1.0,
       "mrr": 0.5,
       "ndcg": 0.6309297535714574,
@@ -984,7 +984,7 @@
       "relevance": {
         "rx700": 2
       },
-      "ranking_ms": 0.10816700523719192,
+      "ranking_ms": 0.10991698945872486,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1002,7 +1002,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.0897919962881133,
+      "ranking_ms": 0.09079099982045591,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1020,7 +1020,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.015875004464760423,
+      "ranking_ms": 0.015958008589223027,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1038,7 +1038,7 @@
       "relevance": {
         "rx710": 2
       },
-      "ranking_ms": 0.10662501154001802,
+      "ranking_ms": 0.10779101285152137,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1058,7 +1058,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.12174999574199319,
+      "ranking_ms": 0.1244169834535569,
       "recall": 0.5,
       "mrr": 1.0,
       "ndcg": 0.8262346571285599,
@@ -1077,7 +1077,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.015958998119458556,
+      "ranking_ms": 0.01575000351294875,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1098,7 +1098,7 @@
         "reset-cn": 2,
         "reset-en": 1
       },
-      "ranking_ms": 0.13891799608245492,
+      "ranking_ms": 0.14150000060908496,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 0.9639404333166532,
@@ -1118,7 +1118,7 @@
       "relevance": {
         "backup": 2
       },
-      "ranking_ms": 0.09216599573846906,
+      "ranking_ms": 0.09395900997333229,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1138,7 +1138,7 @@
       "relevance": {
         "backup": 2
       },
-      "ranking_ms": 0.020374995074234903,
+      "ranking_ms": 0.020750012481585145,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1158,7 +1158,7 @@
       "relevance": {
         "backup": 2
       },
-      "ranking_ms": 0.114206995931454,
+      "ranking_ms": 0.11625103070400655,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1176,7 +1176,7 @@
       "relevance": {
         "invite": 2
       },
-      "ranking_ms": 0.09154199506156147,
+      "ranking_ms": 0.0935420102905482,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1194,7 +1194,7 @@
       "relevance": {
         "invite": 2
       },
-      "ranking_ms": 0.020207997295074165,
+      "ranking_ms": 0.020459003280848265,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1212,7 +1212,7 @@
       "relevance": {
         "invite": 2
       },
-      "ranking_ms": 0.11274998541921377,
+      "ranking_ms": 0.1149600138887763,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1232,7 +1232,7 @@
       "relevance": {
         "context": 2
       },
-      "ranking_ms": 0.11683300544973463,
+      "ranking_ms": 0.11774999438785017,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1249,7 +1249,7 @@
       "relevance": {
         "context": 2
       },
-      "ranking_ms": 0.015792000340297818,
+      "ranking_ms": 0.0160830095410347,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1269,7 +1269,7 @@
       "relevance": {
         "context": 2
       },
-      "ranking_ms": 0.13387500075623393,
+      "ranking_ms": 0.13512501027435064,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1289,7 +1289,7 @@
       "relevance": {
         "private": 2
       },
-      "ranking_ms": 0.12333400081843138,
+      "ranking_ms": 0.12325000716373324,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1307,7 +1307,7 @@
       "relevance": {
         "private": 2
       },
-      "ranking_ms": 0.016125006368383765,
+      "ranking_ms": 0.015958008589223027,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1327,7 +1327,7 @@
       "relevance": {
         "private": 2
       },
-      "ranking_ms": 0.14066700532566756,
+      "ranking_ms": 0.1405829971190542,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1344,7 +1344,7 @@
       "relevance": {
         "rate-limit": 2
       },
-      "ranking_ms": 0.09337499795947224,
+      "ranking_ms": 0.0926670036278665,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1361,7 +1361,7 @@
       "relevance": {
         "rate-limit": 2
       },
-      "ranking_ms": 0.020166000467725098,
+      "ranking_ms": 0.020500010577961802,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1378,7 +1378,7 @@
       "relevance": {
         "rate-limit": 2
       },
-      "ranking_ms": 0.11429100413806736,
+      "ranking_ms": 0.11395898764021695,
       "recall": 1.0,
       "mrr": 1.0,
       "ndcg": 1.0,
@@ -1391,7 +1391,7 @@
       "method": "bm25",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.08841599628794938,
+      "ranking_ms": 0.08987501496449113,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -1404,7 +1404,7 @@
       "method": "dense_fixture_concept_cosine",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.01912500010803342,
+      "ranking_ms": 0.019416998839005828,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -1417,7 +1417,7 @@
       "method": "hybrid_rrf",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.10816600115504116,
+      "ranking_ms": 0.10987499263137579,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -1430,7 +1430,7 @@
       "method": "bm25",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.09087500802706927,
+      "ranking_ms": 0.08879200322553515,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -1443,7 +1443,7 @@
       "method": "dense_fixture_concept_cosine",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.0187920086318627,
+      "ranking_ms": 0.019041995983570814,
       "recall": null,
       "mrr": null,
       "ndcg": null,
@@ -1456,7 +1456,7 @@
       "method": "hybrid_rrf",
       "ranked_ids": [],
       "relevance": {},
-      "ranking_ms": 0.11020901729352772,
+      "ranking_ms": 0.10837498120963573,
       "recall": null,
       "mrr": null,
       "ndcg": null,
