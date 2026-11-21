@@ -9,7 +9,7 @@ bun --no-env-file audit --json > .local/javascript-audit.json || TASK_JS_AUDIT_S
 uv export --frozen --all-groups --no-hashes --no-emit-workspace --no-annotate -o .local/python-audit-requirements.txt
 # Keep the raw report, then apply only the inherited, reviewed embedded-Chroma policy.
 uvx pip-audit --strict --no-deps --disable-pip -r .local/python-audit-requirements.txt -f json -o .local/python-audit.json --progress-spinner off || true
-if [[ "$(date -u +%F)" > "2026-11-21" ]]; then
+if [[ "$(date -u +%F)" > "2026-12-21" ]]; then
     echo 'The embedded-Chroma exception review date has passed; review SECURITY.md.'
     exit 1
 fi

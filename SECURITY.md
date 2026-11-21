@@ -34,8 +34,10 @@ blanket approval for other source builds or future dkimpy versions.
 
 ## Temporary Chroma exceptions
 
-On **2026-10-26**, auditing the locked Chroma **1.5.9** dependency still
-returned these four advisories with no fix versions in the audit response:
+On **2026-10-26**, auditing the locked Chroma **1.5.9** dependency returned
+these four advisories. The **2026-11-21** review of the locked dependency graph
+and the embedded-client deployment boundary confirmed the same four aliases,
+with no fix versions reported by the audit response:
 
 | Exact exception | PyPI identifier | Impact in Chroma server deployments |
 | --- | --- | --- |
@@ -46,7 +48,7 @@ returned these four advisories with no fix versions in the audit response:
 
 PyPI returns five records because PYSEC-2026-311 appears twice. CI permits only
 the four exact GHSA aliases and fails on other findings. These exceptions must
-be reviewed by **2026-11-21**; CI rejects them after that date.
+be reviewed again by **2026-12-21**; CI rejects them after that date.
 
 The current application constructs `Chroma` in
 `backend/app/services/rag_service.py` with a local `persist_directory` and
@@ -90,3 +92,16 @@ unrecognized/error reports and expires the exception after **2026-11-29**.
 It is invalid before accepting converter options, selector objects, formatter
 configuration or arbitrary template code from an untrusted source. Recheck the
 upstream fix before the review deadline or any change to that boundary.
+
+## Publication review, 2026-11-21
+
+The native audit identified new advisories in the locked JavaScript and Python
+graphs. JavaScript overrides now select `follow-redirects=1.16.3`, `glob=14.0.6`,
+`minimatch=11.0.9` and `next=16.4.6`. The latter three are also used by the local
+React Email tooling, so the email export is checked alongside the browser build.
+Lifecycle scripts remain disabled during installation.
+
+Python constraint floors and the lockfile now select patched `dnspython=2.9.2`,
+`oauthlib=4.0.1`, `opentelemetry-api=1.45.2` and `pypdf=6.21.4`, together with the
+matching OpenTelemetry SDK. The existing four exact Chroma exceptions above
+remain limited to the reviewed local embedded-client deployment.

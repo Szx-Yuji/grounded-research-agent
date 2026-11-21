@@ -6,7 +6,11 @@
   "overrides": {
     "js-yaml": "4.3.2",
     "fast-uri": "3.1.9",
-    "seroval": "1.6.11"
+    "seroval": "1.6.11",
+    "follow-redirects": "1.16.3",
+    "glob": "14.0.6",
+    "minimatch": "11.0.9",
+    "next": "16.4.6"
   },
   "workspaces": [
     "frontend",
